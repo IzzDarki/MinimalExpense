@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="big_card_color">@color/primary_color_very_light</color>
+</resources>

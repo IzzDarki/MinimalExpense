@@ -1,0 +1,25 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/info">
+
+        <Preference
+            android:title="@string/author_title"
+            android:summary="@string/author_content"
+            android:icon="@drawable/ic_person_24dp"/>
+
+        <Preference
+            android:title="@string/email_title"
+            android:summary="@string/email_content"
+            android:icon="@drawable/ic_email_24dp">
+            <intent android:action="android.intent.action.SENDTO"
+                android:data="@string/mailto_link" />
+        </Preference>
+
+        <Preference
+            android:title="@string/version_title"
+            android:summary="@string/version_name"
+            android:icon="@drawable/ic_label_24dp"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

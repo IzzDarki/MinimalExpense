@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- these menu items is also in the other home action bar menu files -->
+    <item
+        android:id="@+id/home_action_bar_filter"
+        android:title="@string/filter"
+        android:icon="@drawable/ic_filter_24dp"
+        android:orderInCategory="3"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/home_action_bar_sort"
+        android:title="@string/sort"
+        android:icon="@drawable/ic_sort_24dp"
+        android:orderInCategory="4"
+        app:showAsAction="ifRoom">
+
+        <menu>
+
+            <group android:checkableBehavior="single">
+
+                <item
+                    android:id="@+id/home_action_bar_sort_by_creation_date"
+                    android:title="@string/sort_by_creation_date"
+                    android:icon="@drawable/ic_calendar_created_24dp"
+                    android:checked="false"/>
+
+                <item
+                    android:id="@+id/home_action_bar_sort_by_amount"
+                    android:title="@string/sort_by_amount"
+                    android:icon="@drawable/ic_euro_24dp"
+                    android:checked="false"/>
+
+                <item
+                    android:id="@+id/home_action_bar_sort_by_name"
+                    android:title="@string/sort_by_name"
+                    android:icon="@drawable/ic_sort_alphabetically_24dp"
+                    android:checked="false"/>
+
+            </group>
+
+            <group android:checkableBehavior="all">
+
+                <item
+                    android:id="@+id/home_action_bar_sort_reverse"
+                    android:title="@string/sort_reverse"
+                    android:icon="@drawable/ic_sort_reverse_24dp"
+                    android:checkable="true"/>
+
+            </group>
+
+        </menu>
+
+    </item>
+</menu>
