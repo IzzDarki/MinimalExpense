@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:animateLayoutChanges="true"
+    tools:context=".ui.home.HomeFragment">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/filter_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/recycler_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:contentPadding="8dp"
+
+        app:strokeWidth="1dp"
+        app:strokeColor="@color/material_on_background_emphasis_medium"
+        app:cardCornerRadius="10dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <!-- Row Filter headline -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/filter_headline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+
+                android:padding="@dimen/table_row_padding"
+                android:text="@string/filter"
+                android:textAppearance="@style/TextAppearance.MinimalExpense.Headline"
+                tools:viewBindingIgnore="true"/>
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/filter_collapse_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintTop_toTopOf="@id/filter_headline"
+                app:layout_constraintBottom_toBottomOf="@id/filter_headline"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:padding="4dp"
+                app:srcCompat="@drawable/ic_collapse_30dp"/>
+
+            <!-- Row Labels -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/labels_headline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintTop_toBottomOf="@id/filter_headline"
+                app:layout_constraintStart_toEndOf="@id/labels_enabled_button"
+
+                android:layout_marginTop="@dimen/table_row_padding"
+
+                android:paddingTop="@dimen/table_row_padding"
+                android:paddingBottom="@dimen/table_row_padding"
+                android:paddingEnd="@dimen/table_row_padding"
+                android:text="@string/labels"
+                android:textAppearance="@style/TextAppearance.MinimalExpense.SectionHeadline" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/labels_enabled_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintWidth_min="@dimen/min_touch_target_size"
+                app:layout_constraintHeight_min="@dimen/min_touch_target_size"
+
+                app:layout_constraintTop_toTopOf="@id/labels_headline"
+                app:layout_constraintBottom_toBottomOf="@id/labels_headline"
+                app:layout_constraintStart_toStartOf="parent"
+
+                android:padding="4dp"
+                android:background="@android:color/transparent"
+                tools:srcCompat="@drawable/ic_filter_off_24dp"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/labels_inclusive_exclusive_chip_group"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintTop_toTopOf="@id/labels_headline"
+                app:layout_constraintBottom_toBottomOf="@id/labels_headline"
+                app:layout_constraintStart_toEndOf="@id/labels_headline"
+                app:layout_constraintEnd_toEndOf="parent"
+
+                app:singleSelection="true"
+                android:layout_marginStart="8dp"
+                tools:viewBindingIgnore="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/inclusive_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="@string/inclusive"
+                    style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/exclusive_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="@string/exclusive"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/labels_content_chip_group"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintTop_toBottomOf="@id/labels_inclusive_exclusive_chip_group"
+                app:layout_constraintStart_toStartOf="@id/labels_inclusive_exclusive_chip_group"
+                app:layout_constraintEnd_toEndOf="parent"
+
+                tools:viewBindingIgnore="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/labels_add_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:chipBackgroundColor="@color/primary_color"
+                    style="@style/Widget.MaterialComponents.Chip.Action"
+                    android:text="@string/label"
+
+                    app:chipIcon="@drawable/ic_plus_24dp" />
+
+            </com.google.android.material.chip.ChipGroup>
+
+
+            <!-- Row Date -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/date_headline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintTop_toBottomOf="@id/labels_content_chip_group"
+                app:layout_constraintStart_toStartOf="@id/labels_headline"
+
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginTop="@dimen/table_row_padding"
+
+                android:paddingTop="@dimen/table_row_padding"
+                android:paddingBottom="@dimen/table_row_padding"
+                android:paddingEnd="@dimen/table_row_padding"
+                android:text="@string/date"
+                android:textAppearance="@style/TextAppearance.MinimalExpense.SectionHeadline" />
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/date_from_text_view"
+                android:layout_width="80sp"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintBaseline_toBaselineOf="@id/date_headline"
+                app:layout_constraintStart_toStartOf="@id/labels_inclusive_exclusive_chip_group"
+
+                android:padding="@dimen/table_row_padding"
+                android:text="@string/from"/>
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/date_enabled_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintWidth_min="@dimen/min_touch_target_size"
+                app:layout_constraintHeight_min="@dimen/min_touch_target_size"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/date_headline"
+                app:layout_constraintBottom_toBottomOf="@id/date_headline"
+
+                android:padding="4dp"
+                android:background="@android:color/transparent"
+                tools:srcCompat="@drawable/ic_filter_off_24dp"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/date_from_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintStart_toEndOf="@+id/date_from_text_view"
+                app:layout_constraintBaseline_toBaselineOf="@id/date_from_text_view"
+
+                style="@style/Widget.MaterialComponents.Chip.Action"
+
+                app:chipIcon="@drawable/ic_calendar_created_24dp"
+
+                tools:text="01.12.2024"/>
+
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/date_to_text_view"
+                android:layout_width="80sp"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintTop_toBottomOf="@id/date_from_text_view"
+                app:layout_constraintStart_toStartOf="@id/labels_inclusive_exclusive_chip_group"
+
+                android:layout_marginTop="@dimen/table_row_padding"
+                android:padding="@dimen/table_row_padding"
+                android:text="@string/until"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/date_to_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintStart_toEndOf="@+id/date_from_text_view"
+                app:layout_constraintBaseline_toBaselineOf="@id/date_to_text_view"
+
+                style="@style/Widget.MaterialComponents.Chip.Action"
+
+                app:chipIcon="@drawable/ic_calendar_created_24dp"
+
+                tools:text="31.12.2024"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/filter_card"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:scrollbars="none"
+        android:clipToPadding="false"
+        tools:listitem="@layout/adapter_expense"/>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/add_expense_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="@string/add_expense_floating_action_button_content_description"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:srcCompat="@android:drawable/ic_input_add"
+        tools:ignore="ImageContrastCheck" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
