@@ -3,6 +3,7 @@ package com.izzdarki.minimalexpense.ui.home
 import android.content.DialogInterface
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
@@ -14,9 +15,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.izzdarki.editlabelscomponent.EditLabelsComponent
 import com.izzdarki.minimalexpense.R
 import com.izzdarki.minimalexpense.data.ExpensePreferenceManager
+import com.izzdarki.minimalexpense.data.SettingsManager
 import com.izzdarki.minimalexpense.databinding.FragmentHomeBinding
 import com.izzdarki.minimalexpense.ui.edit.EditExpenseActivity
 import com.izzdarki.minimalexpense.util.*
+import com.izzdarki.minimalexpense.debug.Timer
 import java.util.*
 
 class HomeFragment : Fragment() {
@@ -24,13 +27,16 @@ class HomeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true) // this fragment uses the action bar menu
+        //setRetainInstance(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        val timer = Timer("Home Fragment on create view")
+
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        viewModel = ViewModelProvider(this).get(HomeViewModel::class.java)
+        viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         viewModel.init(requireContext())
 
         // filter card
@@ -45,8 +51,11 @@ class HomeFragment : Fragment() {
         onCreateDateFilter()
         onCreateRecyclerView()
 
-        viewModel.onExpensesFilteredOrSorted = {
-            adapter?.notifyDataSetChanged()
+        viewModel.onExpensesChanged = { removeIndex ->
+            if (removeIndex == null)
+                adapter?.notifyDataSetChanged()
+            else
+                adapter?.notifyItemRemoved(removeIndex)
             updateSum()
             updateFilterLabelsComponent()
         }
@@ -55,6 +64,14 @@ class HomeFragment : Fragment() {
         binding.addExpenseButton.setOnClickListener {
             EditExpenseActivity.startForCreate(requireContext())
         }
+
+        binding.root.doOnPreDraw {
+            updateSum() // Can't be done instantly because supportActionBar is null when creating this fragment
+        }
+
+        calledAfterOnCreateView = true
+
+        timer.end()
         return root
     }
 
@@ -151,11 +168,18 @@ class HomeFragment : Fragment() {
     }
 
     override fun onResume() {
-        viewModel.init(requireContext()) // Gets called in onViewCreated too, but it should be fine
-        updateSum()
-        updateFilterLabelsComponent()
-        adapter?.notifyDataSetChanged()
+        val timer = Timer("Home Fragment on resume")
+
+        if (!calledAfterOnCreateView) {
+            viewModel.init(requireContext()) // Only do this when onCreateView was not called before
+            viewModel.onExpensesChanged.invoke(null)
+        }
+        else
+            calledAfterOnCreateView = false
+
         super.onResume()
+
+        timer.end()
     }
 
     override fun onDestroyView() {
@@ -181,9 +205,12 @@ class HomeFragment : Fragment() {
             adapter?.selectionTracker?.isMultipleSelected == true -> inflater.inflate(R.menu.home_action_bar_with_multiple_items_selected_menu, menu)
             else -> inflater.inflate(R.menu.home_action_bar_menu, menu)
         }
-        menu.findItem(R.id.home_action_bar_sort_by_creation_date).isChecked = viewModel.sortingType.value == HomeViewModel.SortingType.ByCreationDate
-        menu.findItem(R.id.home_action_bar_sort_by_name).isChecked = viewModel.sortingType.value == HomeViewModel.SortingType.ByName
-        menu.findItem(R.id.home_action_bar_sort_by_amount).isChecked = viewModel.sortingType.value == HomeViewModel.SortingType.ByAmount
+
+        when (viewModel.sortingType.value!!) {
+            HomeViewModel.SortingType.ByCreationDate -> menu.findItem(R.id.home_action_bar_sort_by_creation_date).isChecked = true
+            HomeViewModel.SortingType.ByName -> menu.findItem(R.id.home_action_bar_sort_by_name).isChecked = true
+            HomeViewModel.SortingType.ByAmount -> menu.findItem(R.id.home_action_bar_sort_by_amount).isChecked = true
+        }
         menu.findItem(R.id.home_action_bar_sort_reverse).isChecked = viewModel.sortingReversed.value!!
     }
 
@@ -250,7 +277,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!! // This property is only valid between onCreateView and onDestroyView
     private lateinit var filterLabelsComponent: EditLabelsComponent
-    private val isFilterEdit get() = binding.filterCard.visibility == View.VISIBLE
+    private var calledAfterOnCreateView = false
 
     companion object {
         private const val SELECTION_ID: String = "expense_selection"
@@ -259,10 +286,10 @@ class HomeFragment : Fragment() {
 
     // helpers
     private fun toggleFilterCardVisibility() {
-            if (isFilterEdit)
-                setFilterCardOpened(false)
-            else
-                setFilterCardOpened(true)
+        if (isFilterEdit)
+            setFilterCardOpened(false)
+        else
+            setFilterCardOpened(true)
     }
 
     private fun setFilterCardOpened(isOpened: Boolean) {
@@ -358,7 +385,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun deleteDirectly(id: UUID) {
-        val pos = viewModel.deleteExpense(requireContext(), id)
+        val pos = viewModel.deleteExpense(requireContext(), id, notifyChange = false)
         adapter?.notifyItemRemoved(pos)
     }
 
@@ -368,7 +395,11 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateSum() {
-        activity?.supportActionBar?.title = String.format(getString(R.string.total), formatCurrency(viewModel.sumCents))
+        activity?.supportActionBar?.title =
+            if (SettingsManager(requireContext()).isModeBudget())
+                "${getString(R.string.budget)} ${formatCurrency(-viewModel.sumCents)}"
+            else
+                "${getString(R.string.expenses)} ${formatCurrency(viewModel.sumCents)}"
     }
 
     private fun updateFilterLabelsComponent() {
@@ -376,5 +407,6 @@ class HomeFragment : Fragment() {
     }
 
     private val adapter get() = binding.recyclerView.adapter as? ExpenseAdapter
+    private val isFilterEdit get() = binding.filterCard.visibility == View.VISIBLE
 
 }

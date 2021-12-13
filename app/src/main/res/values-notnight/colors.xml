@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="big_card_color">@color/primary_color_very_light</color>
+    <color name="expense_color">#980E0E</color>
+    <color name="income_color">#0E980E</color>
 </resources>

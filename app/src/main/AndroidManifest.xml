@@ -21,7 +21,8 @@
 
         <activity
             android:name="com.izzdarki.minimalexpense.ui.edit.EditExpenseActivity"
-            android:exported="true"/>
+            android:exported="true"
+            android:windowSoftInputMode="stateVisible"/>
 
     </application>
 

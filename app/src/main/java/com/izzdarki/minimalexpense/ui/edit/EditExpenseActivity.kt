@@ -6,19 +6,20 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.*
+import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
+import androidx.core.widget.doBeforeTextChanged
+import androidx.core.widget.doOnTextChanged
 import com.izzdarki.minimalexpense.R
 import com.izzdarki.minimalexpense.data.ExpensePreferenceManager
 import com.izzdarki.minimalexpense.data.Expense
 import com.izzdarki.minimalexpense.databinding.ActivityEditExpenseBinding
 import com.izzdarki.editlabelscomponent.EditLabelsComponent
-import com.izzdarki.minimalexpense.util.dateNow
-import com.izzdarki.minimalexpense.util.formatDateLong
-import com.izzdarki.minimalexpense.util.getDecimalPlaces
-import com.izzdarki.minimalexpense.util.selectDateDialog
+import com.izzdarki.minimalexpense.util.*
 import java.util.*
+import kotlin.math.abs
 
 class EditExpenseActivity : AppCompatActivity() {
 
@@ -71,13 +72,27 @@ class EditExpenseActivity : AppCompatActivity() {
             else
                 binding.nameInput.error = null
         }
+        if (isCreateNewIntent) {
+            // When creating a new expense start with name selected
+            binding.nameInputEditText.requestFocus()
+            binding.nameInputEditText.selectAll()
+        }
+        binding.nameInputEditText.setOnEditorActionListener { v, actionId, event ->
+            // Custom handling of action next
+            if (actionId == EditorInfo.IME_ACTION_NEXT) {
+                binding.amountInputEditText.selectAll()
+                binding.amountInputEditText.requestFocus()
+                return@setOnEditorActionListener true
+            }
+            return@setOnEditorActionListener false
+        }
 
         // Amount input
-        val amountText = formatAmountText(expense.cents)
+        val amountText = formatAmountText(abs(expense.cents))
         binding.amountInputEditText.setText(amountText)
         binding.amountInputEditText.doAfterTextChanged {
             val amountString = binding.amountInputEditText.text.toString()
-            val amount = amountString.toFloatOrNull()
+            val amount = amountString.toDoubleOrNull()
             binding.amountInput.error = when {
                 amount == null -> getString(R.string.this_is_not_a_valid_amount)
                 getDecimalPlaces(amountString) > 2 -> getString(R.string.only_two_decimal_places_are_allowed)
@@ -98,6 +113,12 @@ class EditExpenseActivity : AppCompatActivity() {
             }
             return@setOnEditorActionListener false
         }
+
+        // Expense/income toggle
+        if (expense.cents >= 0)
+            binding.expenseChip.isChecked = true
+        else
+            binding.incomeChip.isChecked = true
 
         // Labels component
         editLabelsComponent = EditLabelsComponent(
@@ -225,19 +246,13 @@ class EditExpenseActivity : AppCompatActivity() {
         requestCancel()
     }
 
-    private fun onEditCreationDate() {
-
-    }
-
-    // region labels
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
         // Every touch event goes through this function
-        if (editLabelsComponent.dispatchTouchEvent(ev))
-            return true
+        return if (editLabelsComponent.dispatchTouchEvent(ev))
+            true
         else
-            return super.dispatchTouchEvent(ev)
+            super.dispatchTouchEvent(ev)
     }
-        // endregion
 
     private lateinit var binding: ActivityEditExpenseBinding
     private val expensePreferences by lazy { ExpensePreferenceManager(this) }
@@ -253,8 +268,14 @@ class EditExpenseActivity : AppCompatActivity() {
     private fun readCents(): Long {
         val amount = binding.amountInputEditText.text
             .toString()
-            .toFloat()
-        return (amount * 100).toLong()
+            .toDoubleOrNull() ?: return 0
+
+        val cents = (amount * 100).toLong()
+
+        return if (binding.incomeChip.isChecked)
+            -cents
+        else
+            cents
     }
 
     private fun readLabels() = editLabelsComponent.currentLabels.toMutableSet()

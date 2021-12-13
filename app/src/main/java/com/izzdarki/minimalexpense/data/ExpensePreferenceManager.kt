@@ -9,59 +9,23 @@ import java.util.*
 
 class ExpensePreferenceManager(context: Context) {
 
-    class LabelFilter(
-        var labels: MutableSet<String>,
-        var exclusive: Boolean,
-        var enabled: Boolean
-    )
-
-    class DateFilter(
-        from: Date,
-        until: Date,
-        var enabled: Boolean
-    ) {
-        /** Only year, month and day are important, time is always 00:00:00 and 0000ms */
-        var from: Date = Date(0)
-            set(value) {
-                val calendar = Calendar.getInstance()
-                calendar.time = value
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-                calendar.set(Calendar.MILLISECOND, 0)
-                field = calendar.time
-            }
-
-        /** Only year, month and day are important, time is always 23:59:59 and 999ms **/
-        var until: Date = Date(0)
-            set(value) {
-                val calendar = Calendar.getInstance()
-                calendar.time = value
-                calendar.set(Calendar.HOUR_OF_DAY, 23)
-                calendar.set(Calendar.MINUTE, 59)
-                calendar.set(Calendar.SECOND, 59)
-                calendar.set(Calendar.MILLISECOND, 999)
-                field = calendar.time
-            }
-
-        init {
-            this.from = from
-            this.until = until
-        }
+    init {
+        if (preferences == null)
+            preferences = openEncryptedPreferences(context, "expenses")
     }
 
     fun readExpense(id: UUID) = Expense(
         id,
-        name = preferences.getString(NAME.format(id), null)!!,
-        cents = preferences.getLong(CENTS.format(id), -1),
+        name = preferences!!.getString(NAME.format(id), null)!!,
+        cents = preferences!!.getLong(CENTS.format(id), -1),
         labels = readExpenseLabels(id),
-        created = Date(preferences.getLong(CREATED.format(id), 0)),
-        altered = Date(preferences.getLong(ALTERED.format(id), 0)),
+        created = Date(preferences!!.getLong(CREATED.format(id), 0)),
+        altered = Date(preferences!!.getLong(ALTERED.format(id), 0)),
     )
 
     fun writeExpense(expense: Expense) {
         val id = expense.id
-        preferences.edit()
+        preferences!!.edit()
             .putString(NAME.format(id), expense.name)
             .putLong(CENTS.format(id), expense.cents)
             .putString(LABELS.format(id), expense.labels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR))
@@ -72,7 +36,7 @@ class ExpensePreferenceManager(context: Context) {
     }
 
     fun removeExpense(id: UUID) {
-        preferences.edit()
+        preferences!!.edit()
             .remove(NAME.format(id))
             .remove(CENTS.format(id))
             .remove(LABELS.format(id))
@@ -81,7 +45,6 @@ class ExpensePreferenceManager(context: Context) {
             .apply()
         removeFromAllExpenseIds(id)
     }
-
 
     fun readAllExpenses(): List<Expense>
         = readAllExpenseIds()
@@ -110,30 +73,30 @@ class ExpensePreferenceManager(context: Context) {
         return alLLabelsSet
     }
 
-    fun readSortingType() = intToSortingType(preferences.getInt(SORTING_TYPE, 0))
+    fun readSortingType() = intToSortingType(preferences!!.getInt(SORTING_TYPE, 0))
 
     fun writeSortingType(sortingType: SortingType) {
-        preferences.edit()
+        preferences!!.edit()
             .putInt(SORTING_TYPE, sortingTypeToInt(sortingType))
             .apply()
     }
 
-    fun readSortingReversed() = preferences.getBoolean(SORTING_REVERSED, false)
+    fun readSortingReversed() = preferences!!.getBoolean(SORTING_REVERSED, false)
 
     fun writeSortingReversed(sortingReversed: Boolean) {
-        preferences.edit()
+        preferences!!.edit()
             .putBoolean(SORTING_REVERSED, sortingReversed)
             .apply()
     }
 
     fun readDateFilter() = DateFilter(
-        from = Date(preferences.getLong(FILTER_START_DATE, 0L)),
-        until = Date(preferences.getLong(FILTER_END_DATE, 0L)),
-        enabled = preferences.getBoolean(FILTER_DATE_ENABLED, true)
+        from = Date(preferences!!.getLong(FILTER_START_DATE, 0L)),
+        until = Date(preferences!!.getLong(FILTER_END_DATE, 0L)),
+        enabled = preferences!!.getBoolean(FILTER_DATE_ENABLED, false)
     )
 
     fun writeDateFilter(dateFilter: DateFilter) {
-        preferences.edit()
+        preferences!!.edit()
             .putLong(FILTER_START_DATE, dateFilter.from.time)
             .putLong(FILTER_END_DATE, dateFilter.until.time)
             .putBoolean(FILTER_DATE_ENABLED, dateFilter.enabled)
@@ -141,16 +104,16 @@ class ExpensePreferenceManager(context: Context) {
     }
 
     fun readLabelFilter() = LabelFilter(
-        labels = preferences.getString(FILTER_LABELS, "")!!
+        labels = preferences!!.getString(FILTER_LABELS, "")!!
             .split(EditLabelsComponent.DEFAULT_SEPARATOR)
             .filter { it.isNotEmpty() }
             .toMutableSet(),
-        exclusive = preferences.getBoolean(FILTER_LABELS_EXCLUSIVE, false),
-        enabled = preferences.getBoolean(FILTER_LABELS_ENABLED, true)
+        exclusive = preferences!!.getBoolean(FILTER_LABELS_EXCLUSIVE, false),
+        enabled = preferences!!.getBoolean(FILTER_LABELS_ENABLED, false)
     )
 
     fun writeLabelFilter(labelFilter: LabelFilter) {
-        preferences.edit().putString(
+        preferences!!.edit().putString(
             FILTER_LABELS,
             labelFilter.labels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR)
         ).putBoolean(
@@ -163,14 +126,14 @@ class ExpensePreferenceManager(context: Context) {
     }
 
     fun writeFilterCardOpened(isOpened: Boolean) {
-        preferences.edit()
+        preferences!!.edit()
             .putBoolean(FILTER_CARD_OPENED, isOpened)
             .apply()
     }
 
-    fun readFilterCardOpened() = preferences.getBoolean(FILTER_CARD_OPENED, false)
+    fun readFilterCardOpened() = preferences!!.getBoolean(FILTER_CARD_OPENED, true)
 
-    private fun readExpenseLabels(id: UUID) = preferences.getString(LABELS.format(id), "")!!
+    private fun readExpenseLabels(id: UUID) = preferences!!.getString(LABELS.format(id), "")!!
         .split(EditLabelsComponent.DEFAULT_SEPARATOR)
         .filter { it.isNotEmpty() }
         .toMutableSet()
@@ -188,7 +151,7 @@ class ExpensePreferenceManager(context: Context) {
     }
 
     private fun readAllExpenseIds(): Set<UUID> {
-        val string = preferences.getString(ALL_EXPENSES, "")!!
+        val string = preferences!!.getString(ALL_EXPENSES, "")!!
         return if (string.isNotEmpty()) {
             string.split(LIST_DELIMITER)
                 .map { UUID.fromString(it) }
@@ -198,12 +161,10 @@ class ExpensePreferenceManager(context: Context) {
     }
 
     private fun writeAllExpenseIds(ids: Set<UUID>) {
-        preferences.edit()
+        preferences!!.edit()
             .putString(ALL_EXPENSES, ids.joinToString(LIST_DELIMITER) { it.toString() })
             .apply()
     }
-
-    private val preferences: SharedPreferences = openEncryptedPreferences(context, "expenses")
 
     companion object {
         private const val NAME: String = "%s.name" // String
@@ -222,6 +183,9 @@ class ExpensePreferenceManager(context: Context) {
         private const val FILTER_LABELS_ENABLED: String = "filter_labels_enabled" // Boolean
         private const val FILTER_CARD_OPENED: String = "filter_card_opened" // Boolean
         private const val LIST_DELIMITER: String = ","
+
+        // Opening encrypted shared preferences is very expensive
+        private var preferences: SharedPreferences? = null
 
         private fun sortingTypeToInt(sortingType: SortingType) =
             when (sortingType) {

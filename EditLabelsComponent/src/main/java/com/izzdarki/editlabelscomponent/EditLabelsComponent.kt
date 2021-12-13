@@ -105,7 +105,8 @@ class EditLabelsComponent(
      */
     fun displayLabels(labels: Set<String>) {
         for (label in labels) {
-            addChipToLabelsWithoutCallback(label)
+            // Add label chip at the end
+            addChipToLabelsWithoutCallback(label, internalCurrentLabels.size + 1)
             internalCurrentLabels.add(label)
         }
     }

@@ -14,6 +14,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
+    <color name="expense_color">#EC7676</color>
+    <color name="income_color">#76EC76</color>
+
     <!-- Good as background color for Cards or Chips -->
     <color name="second_layer_background_color">@color/mtrl_choice_chip_background_color</color>
 

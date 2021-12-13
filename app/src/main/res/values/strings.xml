@@ -2,12 +2,13 @@
 
     <!-- Language -->
     <string name="app_name">Minimal Expense</string>
-    <string name="nav_header_title">@string/app_name</string>
-    <string name="nav_header_subtitle"></string>
+    <string name="nav_header_title" translatable="false">@string/app_name</string>
+    <string name="nav_header_subtitle" translatable="false"></string>
     <string name="settings">Settings</string>
     <string name="menu_home">Home</string>
     <string name="add_expense">Add expense</string>
-    <string name="total">Total %s</string>
+    <string name="expenses">Expenses</string>
+    <string name="budget">Budget</string>
     <string name="name">Name</string>
     <string name="amount">Amount</string>
     <string name="expense_default_name">New expense</string>
@@ -57,18 +58,24 @@
     <string name="october">October</string>
     <string name="november">November</string>
     <string name="december">December</string>
+    <string name="expense">Expense</string>
+    <string name="income">Income</string>
 
     <!-- Content descriptions -->
     <string name="nav_header_content_description">Navigation header</string>
-    <string name="add_expense_floating_action_button_content_description">@string/add_expense</string>
+    <string name="add_expense_floating_action_button_content_description" translatable="false">@string/add_expense</string>
 
     <!-- Preferences -->
     <string name="info">Info</string>
     <string name="author_title">Author</string>
-    <string name="author_content">IzzDarki</string>
+    <string name="author_content" translatable="false">IzzDarki</string>
     <string name="email_title">E-mail</string>
-    <string name="email_content">izzdarki.dev@gmail.com</string>
-    <string name="mailto_link">mailto:izzdarki.dev@gmail.com?subject=MinimalExpense</string>
+    <string name="email_content" translatable="false">izzdarki.dev@gmail.com</string>
+    <string name="mailto_link" translatable="false">mailto:izzdarki.dev@gmail.com?subject=MinimalExpense</string>
     <string name="version_title">Version</string>
-    <string name="version_name" translatable="false">1.0.0</string>
+    <string name="version_name" translatable="false">1.0.1</string>
+    <string name="mode_title">Mode</string>
+    <string name="mode_summary">Select what the app should focus on</string>
+    <string name="mode_key" translatable="false">preference.mode</string>
+    <string name="mode_options">Expense|Budget</string>
 </resources>

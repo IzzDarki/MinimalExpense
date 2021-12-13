@@ -1,4 +1,12 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.bennet.preferenceutility.ChoicePreference
+        android:title="@string/mode_title"
+        android:summary="@string/mode_summary"
+        android:icon="@drawable/ic_mode_24dp"
+        android:key="@string/mode_key"
+        options="@string/mode_options"/>
 
     <PreferenceCategory android:title="@string/info">
 

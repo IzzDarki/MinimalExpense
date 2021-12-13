@@ -10,10 +10,11 @@ android {
         applicationId "com.izzdarki.minimalexpense"
         minSdk 23
         targetSdk 31
-        versionCode 1
-        versionName "1.0.0"
+        versionCode 2
+        versionName "1.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.debug
     }
 
     buildTypes {
@@ -21,6 +22,12 @@ android {
             minifyEnabled true // Enables code shrinking, obfuscation, and optimization
             shrinkResources true // Enables resource shrinking, which is performed by the Android Gradle plugin.
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        releasetest {
+            minifyEnabled true // Enables code shrinking, obfuscation, and optimization
+            shrinkResources true // Enables resource shrinking, which is performed by the Android Gradle plugin.
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            applicationIdSuffix '.releasetest'
         }
         debug {
             minifyEnabled false
@@ -55,6 +62,7 @@ dependencies {
     implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
 
     implementation project(path: ':EditLabelsComponent')
+    implementation project(path: ':PreferenceUtility')
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

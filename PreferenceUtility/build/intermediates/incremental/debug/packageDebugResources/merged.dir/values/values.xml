@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="max_width_chip_group">200dp</dimen>
+    <declare-styleable name="ChoicePreference">
+        
+        <attr format="reference|string" name="options"/>
+    </declare-styleable>
+</resources>

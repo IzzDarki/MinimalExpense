@@ -1,0 +1,8 @@
+R_DEF: Internal format may change without notice
+local
+attr? options
+dimen max_width_chip_group
+id chip_group
+layout choice_chip
+layout preference_choice
+styleable ChoicePreference options

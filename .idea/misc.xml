@@ -7,7 +7,11 @@
         <entry key="EditLabelsComponent/src/main/res/layout/auto_complete_select_label_adapter.xml" value="0.3572916666666667" />
         <entry key="EditLabelsComponent/src/main/res/layout/dropdown_item.xml" value="0.3572916666666667" />
         <entry key="EditLabelsComponent/src/main/res/layout/fragment_super_labels.xml" value="0.3421875" />
+        <entry key="PreferenceUtility/src/main/res/layout/preference_choice.xml" value="0.3572916666666667" />
+        <entry key="PreferenceUtility/src/main/res/layout/s.xml" value="0.3572916666666667" />
+        <entry key="app/src/main/res/drawable/ic_category_24dp.xml" value="0.3734375" />
         <entry key="app/src/main/res/drawable/ic_collapse_30dp.xml" value="0.3734375" />
+        <entry key="app/src/main/res/drawable/ic_color_24dp.xml" value="0.3734375" />
         <entry key="app/src/main/res/drawable/ic_delete_24dp.xml" value="0.3734375" />
         <entry key="app/src/main/res/drawable/ic_done_24dp.xml" value="0.3734375" />
         <entry key="app/src/main/res/drawable/ic_edit_24dp.xml" value="0.3734375" />
@@ -17,6 +21,8 @@
         <entry key="app/src/main/res/drawable/ic_filter_off_24dp.xml" value="0.3734375" />
         <entry key="app/src/main/res/drawable/ic_home_24dp.xml" value="0.3734375" />
         <entry key="app/src/main/res/drawable/ic_label_24dp.xml" value="0.21510416666666668" />
+        <entry key="app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.3734375" />
+        <entry key="app/src/main/res/drawable/ic_mode_24dp.xml" value="0.3734375" />
         <entry key="app/src/main/res/drawable/ic_person_24dp.xml" value="0.21510416666666668" />
         <entry key="app/src/main/res/drawable/ic_plus_24dp.xml" value="0.3734375" />
         <entry key="app/src/main/res/drawable/ic_settings_24dp.xml" value="0.3734375" />
@@ -43,6 +49,7 @@
         <entry key="app/src/main/res/layout/fragment_gallery.xml" value="0.3572916666666667" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.3393782383419689" />
         <entry key="app/src/main/res/layout/nav_header_main.xml" value="0.3517948717948718" />
+        <entry key="app/src/main/res/layout/preference_choice.xml" value="0.33" />
         <entry key="app/src/main/res/layout/selection_chip.xml" value="0.3572916666666667" />
         <entry key="app/src/main/res/layout/test.xml" value="0.3572916666666667" />
         <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="0.3517948717948718" />
@@ -56,7 +63,7 @@
         <entry key="app/src/main/res/menu/save_menu.xml" value="0.3572916666666667" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.3734375" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.3734375" />
-        <entry key="app/src/main/res/xml/root_preferences.xml" value="0.3572916666666667" />
+        <entry key="app/src/main/res/xml/root_preferences.xml" value="0.33" />
       </map>
     </option>
   </component>
