@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="ChoicePreference">
+        <!-- String of options separated by | to chose from.
+            The first string is used as default value -->
+        <attr name="options" format="reference|string"/>
+    </declare-styleable>
+
+</resources>

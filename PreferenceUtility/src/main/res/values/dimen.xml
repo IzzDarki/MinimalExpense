@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Minimal Expense Debug</string>
+    <dimen name="max_width_chip_group">200dp</dimen>
 </resources>

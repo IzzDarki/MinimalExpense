@@ -14,6 +14,7 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.MutableLiveData
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import java.io.IOException
@@ -68,6 +69,11 @@ fun View.hideKeyboard() {
     imm.hideSoftInputFromWindow(this.windowToken, 0)
 }
 
+fun View.showKeyboard() {
+    val imm = this.context.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
+}
+
 /**
  * Hex opacity values
  *
@@ -100,10 +106,11 @@ fun<T> Iterable<T>.containsAny(other: Collection<T>) = this.any { it in other }
 
 infix fun Int.mathMod(b: Int) = (this % b + b) % b
 
+fun <T> MutableLiveData<T>.notifyObserver() {
+    this.value = this.value
+}
+
 // region very specific utility
-
-
-
 fun formatCurrency(cents: Long)
     = "%.2f €".format(cents.toFloat() / 100).replace(",", ".")
 
@@ -114,5 +121,4 @@ fun getDecimalPlaces(floatString: String, decimalSeparator: Char = '.'): Int {
     else
         floatString.length - commaIndex - 1
 }
-
 // endregion

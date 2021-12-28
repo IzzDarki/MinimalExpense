@@ -6,8 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.izzdarki.minimalexpense.data.Expense
 import com.izzdarki.minimalexpense.data.ExpensePreferenceManager
-import com.izzdarki.minimalexpense.data.ExpensePreferenceManager.LabelFilter
-import com.izzdarki.minimalexpense.data.ExpensePreferenceManager.DateFilter
+import com.izzdarki.minimalexpense.data.LabelFilter
+import com.izzdarki.minimalexpense.data.DateFilter
+import com.izzdarki.minimalexpense.debug.Timer
 import com.izzdarki.minimalexpense.util.containsAny
 import com.izzdarki.minimalexpense.util.notBefore
 import java.util.*
@@ -15,6 +16,8 @@ import java.util.*
 class HomeViewModel : ViewModel() {
 
     fun init(context: Context) {
+        val timer = Timer("Init HomeViewModel")
+
         val preferences = ExpensePreferenceManager(context)
 
         _expenses.value?.clear()
@@ -25,12 +28,17 @@ class HomeViewModel : ViewModel() {
         _labelFilter.value = preferences.readLabelFilter()
         _isFilterCardOpened.value = preferences.readFilterCardOpened()
 
-        sortExpenses(context)
-        filterExpenses(context)
+        filterExpenses(context, notifyChanges = false) // also calls sortExpenses
+
+        timer.end()
     }
 
-    fun sortExpenses(context: Context, sortingType: SortingType? = null, reversed: Boolean? = null) {
+    fun sortExpenses(context: Context, sortingType: SortingType? = null, reversed: Boolean? = null, notifyChanges: Boolean = true) {
+        val timer = Timer("Sort expenses")
+
+        val timer2 = Timer("Part")
         val preferences = ExpensePreferenceManager(context)
+        timer2.end()
         if (sortingType != null) {
             _sortingType.value = sortingType!!
             preferences.writeSortingType(sortingType)
@@ -44,13 +52,21 @@ class HomeViewModel : ViewModel() {
             SortingType.ByCreationDate -> _expenses.value!!.sortByDescending { it.created }
             SortingType.ByAmount -> _expenses.value!!.sortByDescending { it.cents }
             SortingType.ByName -> _expenses.value!!.sortBy { it.name }
+            else -> { }
         }
 
         if (_sortingReversed.value == true)
             _expenses.value!!.reverse()
+
+        if (notifyChanges)
+           onExpensesChanged.invoke(null)
+
+        timer.end()
     }
 
-    private fun filterExpenses(context: Context, dateFilterChanged: Boolean = false, labelFilterChanged: Boolean = false) {
+    private fun filterExpenses(context: Context, dateFilterChanged: Boolean = false, labelFilterChanged: Boolean = false, notifyChanges: Boolean = true) {
+        val timer = Timer("Filter expenses")
+
         val preferences = ExpensePreferenceManager(context)
         val dateFilter = _dateFilter.value!!
         val labelFilter = _labelFilter.value!!
@@ -66,7 +82,7 @@ class HomeViewModel : ViewModel() {
         // Reload expenses (for new filter)
         expenses.clear()
         expenses.addAll(preferences.readAllExpenses())
-        sortExpenses(context)
+        sortExpenses(context, notifyChanges = false)
 
         // Filter expenses
         if (dateFilter.enabled && dateFilter.until notBefore dateFilter.from) {
@@ -88,20 +104,23 @@ class HomeViewModel : ViewModel() {
                 }
             }
         }
-        if ((dateFilter.enabled && dateFilter.until notBefore dateFilter.from)
-            || (labelFilter.enabled && labelFilter.labels.isNotEmpty())
-        )
-            onExpensesFilteredOrSorted.invoke()
+        if (notifyChanges)
+            onExpensesChanged.invoke(null)
+
+        timer.end()
     }
 
     /**
      * Removes the entire expense from preferences and from [expenses]
      * @return Returns the position of the expense with the given [id] in [expenses]
      */
-    fun deleteExpense(context: Context, id: UUID): Int {
+    fun deleteExpense(context: Context, id: UUID, notifyChange: Boolean = true): Int {
         val pos = _expenses.value!!.indexOfFirst { it.id == id }
         ExpensePreferenceManager(context).removeExpense(id)
         _expenses.value!!.removeAt(pos)
+
+        if (notifyChange)
+            onExpensesChanged.invoke(pos)
         return pos
     }
 
@@ -166,5 +185,5 @@ class HomeViewModel : ViewModel() {
     val dateFilter: LiveData<DateFilter> = _dateFilter
     val labelFilter: LiveData<LabelFilter> = _labelFilter
     val isFilterCardOpened: LiveData<Boolean> = _isFilterCardOpened
-    var onExpensesFilteredOrSorted: () -> Unit = { }
+    var onExpensesChanged: (removeIndex: Int?) -> Unit = { }
 }

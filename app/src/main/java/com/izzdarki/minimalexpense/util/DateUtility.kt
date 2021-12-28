@@ -16,10 +16,21 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.lang.Exception
 import java.util.*
+import kotlin.math.min
 
 val dateNow: Date get() = Calendar.getInstance().time
 
 infix fun Date.notBefore(other: Date) = !this.before(other)
+
+infix fun Date.equalDay(other: Date): Boolean {
+    val thisCalendar = Calendar.getInstance()
+    thisCalendar.time = this
+    val otherCalendar = Calendar.getInstance()
+    otherCalendar.time = other
+
+    return thisCalendar.get(Calendar.YEAR) == otherCalendar.get(Calendar.YEAR)
+            && thisCalendar.get(Calendar.DAY_OF_YEAR) == otherCalendar.get(Calendar.DAY_OF_YEAR)
+}
 
 fun isLeapYear(year: Int) = ((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0)
 
@@ -29,11 +40,11 @@ fun getFieldFromDate(date: Date, field: Int): Int {
     return calendar.get(field)
 }
 
+fun getYearFromDate(date: Date) = getFieldFromDate(date, Calendar.YEAR)
 /**
  * @return Month of the date (January is 1)
  */
 fun getMonthFromDate(date: Date) = getFieldFromDate(date, Calendar.MONTH) + 1
-fun getYearFromDate(date: Date) = getFieldFromDate(date, Calendar.YEAR)
 
 /**
  * Create a date with given year, month and day
@@ -50,6 +61,33 @@ fun dateWith(
     calendar.set(Calendar.YEAR, year)
     calendar.set(Calendar.MONTH, month - 1)
     calendar.set(Calendar.DAY_OF_MONTH, day)
+    return calendar.time
+}
+
+/**
+ * Create a date with year, month, day, hour, minute, second, millisecond
+ * @param month January is 1
+ * @param day Day of the month, first day is 1
+ * @param hour 24-hour format
+ */
+fun dateWith(
+    year: Int,
+    month: Int,
+    day: Int,
+    hour: Int,
+    minute: Int,
+    second: Int,
+    millisecond: Int,
+): Date {
+    val calendar = Calendar.getInstance()
+    calendar.time = Date(0)
+    calendar.set(Calendar.YEAR, year)
+    calendar.set(Calendar.MONTH, month - 1)
+    calendar.set(Calendar.DAY_OF_MONTH, day)
+    calendar.set(Calendar.HOUR_OF_DAY, hour)
+    calendar.set(Calendar.MINUTE, minute)
+    calendar.set(Calendar.SECOND, second)
+    calendar.set(Calendar.MILLISECOND, millisecond)
     return calendar.time
 }
 
@@ -111,18 +149,20 @@ fun selectDateRangeDialog(
             val startDate =
                 parseDateShort(dialogViewBinding.startDateEditText.text.toString().trim())
             val endDate = parseDateShort(dialogViewBinding.endDateEditText.text.toString().trim())
-            val newMonthRange = if (startDate != null && endDate != null)
-                dateRangeToMonth(startDate, endDate)
-            else
-                -1
+            val month =
+                if (startDate != null && endDate != null)
+                    dateRangeToMonth(startDate, endDate)
+                else
+                    -1
 
             for (chip in dialogViewBinding.monthChipGroup.allViews
                 .filter { it is Chip }
                 .map { it as Chip }
             ) {
-                val chipMonthAndYear = monthList.first { it.second == chip.text.toString() }
-                chip.isChecked = chipMonthAndYear.first == newMonthRange
-                        && startDate != null && chipMonthAndYear.third == getYearFromDate(startDate)
+                val chipDate = monthList.first { it.second == chip.text.toString() }
+                chip.isChecked = chipDate.first == month
+                        && startDate != null
+                        && chipDate.third == getYearFromDate(startDate)
             }
         }
     }
@@ -229,7 +269,7 @@ fun selectDateDialog(
 ) {
     val dialogViewBinding = DialogEditTextInputBinding.inflate(LayoutInflater.from(context))
 
-
+    dialogViewBinding.titleTextview.text = context.getString(R.string.enter_date)
     dialogViewBinding.textInputLayout.hint = context.getString(R.string.enter_date)
     dialogViewBinding.editText.setText(formatDateShort(initialDate))
     dialogViewBinding.editText.requestFocus()
@@ -289,12 +329,13 @@ fun dateRangeToMonth(startDate: Date, endDate: Date): Int? {
     val month = getMonthFromDate(startDate)
     val year = getYearFromDate(startDate)
 
-    if (month != getMonthFromDate(endDate)
-        || year != getYearFromDate(endDate)
-        || Pair(startDate, endDate) != monthToDateRange(month, getYearFromDate(startDate))
-    ) return null
-
-    return month
+    if (month == getMonthFromDate(endDate) && year == getYearFromDate(endDate)) {
+        // Check if startDate and endDate are beginning end end of a month (don't care about the time of the day)
+        val (expectedStart, expectedEnd) = monthToDateRange(month, getYearFromDate(startDate))
+        if (startDate equalDay expectedStart && endDate equalDay expectedEnd)
+            return month
+    }
+    return null
 }
 
 /**
@@ -302,12 +343,19 @@ fun dateRangeToMonth(startDate: Date, endDate: Date): Int? {
  * @param month Month (January is 1)
  */
 fun monthToDateRange(month: Int, year: Int): Pair<Date, Date> {
+    val endHour = 23
+    val endMinute = 59
+    val endSecond = 59
+    val endMillis = 999
+
     val startDate = dateWith(year, month, 1)
     val endDate = when (month) {
-        1, 3, 5, 7, 8, 10, 12 -> dateWith(year, month, 31)
-        4, 6, 9, 11 -> dateWith(year, month, 30)
-        2 -> dateWith(year, month,
-            if (isLeapYear(year)) 29 else 28
+        1, 3, 5, 7, 8, 10, 12 -> dateWith(year, month, 31, endHour, endMinute, endSecond,endMillis)
+        4, 6, 9, 11 -> dateWith(year, month, 30, endHour, endMinute, endSecond,endMillis)
+        2 -> dateWith(
+            year, month,
+            if (isLeapYear(year)) 29 else 28,
+            endHour, endMinute, endSecond,endMillis
         )
         else -> throw IllegalArgumentException("Given month is not valid: $month")
     }

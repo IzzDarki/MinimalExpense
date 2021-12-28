@@ -10,33 +10,36 @@
     android:paddingEnd="@dimen/activity_horizontal_margin"
     android:orientation="horizontal">
 
-    <com.google.android.material.textview.MaterialTextView
-        android:id="@+id/name_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:paddingTop="@dimen/table_row_padding"
-        android:paddingBottom="@dimen/table_row_padding"
-        android:paddingEnd="16dp"
-        tools:text="@string/name"/>
-
-    <HorizontalScrollView
-        android:id="@+id/labels_scroll_view"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_gravity="center_vertical"
-        android:scrollbars="none"
-        android:overScrollMode="never">
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_weight="1">
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/name_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:paddingTop="@dimen/table_row_padding"
+            android:paddingBottom="@dimen/table_row_padding"
+            android:paddingEnd="16dp"
+            tools:text="@string/name"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/labels_recycler_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minWidth="40dp"
+
+            android:layout_gravity="center_vertical"
+            android:scrollbars="none"
+            android:overScrollMode="never"
             tools:listitem="@layout/expense_labels_list_item"
             tools:itemCount="1"/>
 
-    </HorizontalScrollView>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+
 
     <View
         style="@style/VerticalDivider"/>
@@ -44,6 +47,7 @@
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/amount_text_view"
         android:layout_width="70sp"
+        android:minWidth="70sp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical|end"
         android:paddingTop="@dimen/table_row_padding"
