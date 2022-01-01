@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import com.izzdarki.editlabelscomponent.EditLabelsComponent
 import com.izzdarki.minimalexpense.ui.home.HomeViewModel.SortingType
 import com.izzdarki.minimalexpense.util.openEncryptedPreferences
+import java.lang.StringBuilder
 import java.util.*
 
 class ExpensePreferenceManager(context: Context) {
@@ -112,6 +113,12 @@ class ExpensePreferenceManager(context: Context) {
         enabled = preferences!!.getBoolean(FILTER_LABELS_ENABLED, false)
     )
 
+    fun readAmountFilter() = AmountFilter(
+        expenses = preferences!!.getBoolean(FILTER_AMOUNT_EXPENSES, true),
+        income = preferences!!.getBoolean(FILTER_AMOUNT_INCOME, true),
+        enabled = preferences!!.getBoolean(FILTER_AMOUNT_ENABLED, false)
+    )
+
     fun writeLabelFilter(labelFilter: LabelFilter) {
         preferences!!.edit().putString(
             FILTER_LABELS,
@@ -122,6 +129,19 @@ class ExpensePreferenceManager(context: Context) {
         ).putBoolean(
             FILTER_LABELS_ENABLED,
             labelFilter.enabled
+        ).apply()
+    }
+
+    fun writeAmountFilter(amountFilter: AmountFilter) {
+        preferences!!.edit().putBoolean(
+            FILTER_AMOUNT_EXPENSES,
+            amountFilter.expenses
+        ).putBoolean(
+            FILTER_AMOUNT_INCOME,
+            amountFilter.income
+        ).putBoolean(
+            FILTER_AMOUNT_ENABLED,
+            amountFilter.enabled
         ).apply()
     }
 
@@ -175,12 +195,15 @@ class ExpensePreferenceManager(context: Context) {
         private const val ALL_EXPENSES: String = "all_expenses" // String (List)
         private const val SORTING_TYPE: String = "sorting_type" // Int (SortingType)
         private const val SORTING_REVERSED: String = "sorting_reversed" // Boolean
-        private const val FILTER_START_DATE: String = "filter_start_date" // Long (Date)
-        private const val FILTER_END_DATE: String = "filter_end_date" // Long (Date)
-        private const val FILTER_DATE_ENABLED: String = "filter_date_enabled" // Boolean
         private const val FILTER_LABELS: String = "filter_labels" // String (List)
         private const val FILTER_LABELS_EXCLUSIVE: String = "filter_labels_exclusive" // Boolean
         private const val FILTER_LABELS_ENABLED: String = "filter_labels_enabled" // Boolean
+        private const val FILTER_AMOUNT_EXPENSES: String = "filter_amount_expenses" // Boolean
+        private const val FILTER_AMOUNT_INCOME: String = "filter_amount_income" // Boolean
+        private const val FILTER_AMOUNT_ENABLED: String = "filter_amount_enabled" // Boolean
+        private const val FILTER_START_DATE: String = "filter_start_date" // Long (Date)
+        private const val FILTER_END_DATE: String = "filter_end_date" // Long (Date)
+        private const val FILTER_DATE_ENABLED: String = "filter_date_enabled" // Boolean
         private const val FILTER_CARD_OPENED: String = "filter_card_opened" // Boolean
         private const val LIST_DELIMITER: String = ","
 

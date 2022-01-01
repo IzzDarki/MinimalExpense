@@ -1,12 +1,21 @@
 package com.izzdarki.minimalexpense.data
 
 import java.util.*
+import kotlin.math.exp
 
 class LabelFilter(
     var labels: MutableSet<String>,
     var exclusive: Boolean,
     var enabled: Boolean
 )
+
+class AmountFilter(
+    var expenses: Boolean,
+    var income: Boolean,
+    var enabled: Boolean,
+) {
+    fun isOkay(cents: Long) = (cents < 0L && income) || (cents >= 0 && expenses)
+}
 
 class DateFilter(
     from: Date,

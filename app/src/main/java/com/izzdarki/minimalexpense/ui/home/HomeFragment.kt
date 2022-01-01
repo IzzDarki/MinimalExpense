@@ -3,7 +3,6 @@ package com.izzdarki.minimalexpense.ui.home
 import android.content.DialogInterface
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
@@ -21,6 +20,8 @@ import com.izzdarki.minimalexpense.ui.edit.EditExpenseActivity
 import com.izzdarki.minimalexpense.util.*
 import com.izzdarki.minimalexpense.debug.Timer
 import java.util.*
+import kotlin.math.absoluteValue
+import kotlin.math.exp
 
 class HomeFragment : Fragment() {
 
@@ -48,6 +49,7 @@ class HomeFragment : Fragment() {
         )
 
         onCreateLabelFilter()
+        onCreateTypeFilter()
         onCreateDateFilter()
         onCreateRecyclerView()
 
@@ -76,10 +78,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun onCreateLabelFilter() {
-        updateLabelFilterSection() // make the section appear enabled or disabled
+        updateLabelFilterEnabled() // make the section appear enabled or disabled
         binding.labelsEnabledButton.setOnClickListener {
             viewModel.toggleLabelFilterEnabled(requireContext())
-            updateLabelFilterSection()
+            updateLabelFilterEnabled()
         }
         binding.inclusiveChip.isChecked = !viewModel.labelFilter.value!!.exclusive
         binding.exclusiveChip.isChecked = viewModel.labelFilter.value!!.exclusive
@@ -106,11 +108,32 @@ class HomeFragment : Fragment() {
         )
     }
 
+    private fun onCreateTypeFilter() {
+        updateTypeFilterEnabled()
+
+        binding.typeEnabledButton.setOnClickListener {
+            viewModel.toggleAmountFilterEnabled(requireContext())
+            updateTypeFilterEnabled()
+        }
+
+        binding.typeExpenseChip.isChecked = viewModel.amountFilter.value!!.expenses
+        binding.typeIncomeChip.isChecked = viewModel.amountFilter.value!!.income
+
+        binding.typeExpenseChip.setOnClickListener {
+            updateTypeFilter()
+        }
+
+        binding.typeIncomeChip.setOnClickListener {
+            updateTypeFilter()
+        }
+
+    }
+
     private fun onCreateDateFilter() {
-        updateDateFilterSection() // make the section appear enabled or disabled
+        updateDateFilterEnabled() // make the section appear enabled or disabled
         binding.dateEnabledButton.setOnClickListener {
             viewModel.toggleDateFilterEnabled(requireContext())
-            updateDateFilterSection()
+            updateDateFilterEnabled()
         }
 
         binding.dateFromChip.text = formatDateShort(viewModel.dateFilter.value!!.from)
@@ -304,7 +327,7 @@ class HomeFragment : Fragment() {
     /**
      * Make the section appear enabled or disabled
      */
-    private fun updateLabelFilterSection() {
+    private fun updateLabelFilterEnabled() {
         binding.labelsEnabledButton.setImageDrawable(
             getFilterEnabledImage(viewModel.labelFilter.value!!.enabled)
         )
@@ -322,10 +345,29 @@ class HomeFragment : Fragment() {
         }
     }
 
+
     /**
      * Make the section appear enabled or disabled
      */
-    private fun updateDateFilterSection() {
+    private fun updateTypeFilterEnabled() {
+        binding.typeEnabledButton.setImageDrawable(
+            getFilterEnabledImage(viewModel.amountFilter.value!!.enabled)
+        )
+        if (viewModel.amountFilter.value!!.enabled) {
+            binding.typeHeadline.isEnabled = true
+            binding.typeChipGroup.visibility = View.VISIBLE
+        }
+        else {
+            binding.typeHeadline.isEnabled = false
+            binding.typeChipGroup.visibility = View.INVISIBLE
+        }
+    }
+
+
+    /**
+     * Make the section appear enabled or disabled
+     */
+    private fun updateDateFilterEnabled() {
         binding.dateEnabledButton.setImageDrawable(
             getFilterEnabledImage(viewModel.dateFilter.value!!.enabled)
         )
@@ -343,6 +385,16 @@ class HomeFragment : Fragment() {
             binding.dateToTextView.visibility = View.GONE
             binding.dateToChip.visibility = View.GONE
         }
+    }
+
+    /**
+     * Update amountFilter in viewModel according to the the type expense and income chips
+     */
+    private fun updateTypeFilter() {
+        viewModel.setAmountFilter(requireContext(),
+            expenses = binding.typeExpenseChip.isChecked,
+            income = binding.typeIncomeChip.isChecked
+        )
     }
 
     private fun getFilterEnabledImage(enabled: Boolean): Drawable? {
@@ -395,11 +447,21 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateSum() {
-        activity?.supportActionBar?.title =
-            if (SettingsManager(requireContext()).isModeBudget())
-                "${getString(R.string.budget)} ${formatCurrency(-viewModel.sumCents)}"
-            else
-                "${getString(R.string.expenses)} ${formatCurrency(viewModel.sumCents)}"
+        val amountFilter = viewModel.amountFilter.value!!
+        val prefix =
+            if (amountFilter.enabled && (!amountFilter.expenses || !amountFilter.income)) {
+                if (amountFilter.expenses)
+                    getString(R.string.expenses)
+                else
+                    getString(R.string.income_plural)
+            } else {
+                if (SettingsManager(requireContext()).isModeBudget())
+                    getString(R.string.budget)
+                else
+                    getString(R.string.expenses)
+            }
+
+        activity?.supportActionBar?.title = "$prefix ${formatCurrency(viewModel.sumCents.absoluteValue)}"
     }
 
     private fun updateFilterLabelsComponent() {

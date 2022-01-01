@@ -4,10 +4,7 @@ import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.izzdarki.minimalexpense.data.Expense
-import com.izzdarki.minimalexpense.data.ExpensePreferenceManager
-import com.izzdarki.minimalexpense.data.LabelFilter
-import com.izzdarki.minimalexpense.data.DateFilter
+import com.izzdarki.minimalexpense.data.*
 import com.izzdarki.minimalexpense.debug.Timer
 import com.izzdarki.minimalexpense.util.containsAny
 import com.izzdarki.minimalexpense.util.notBefore
@@ -25,6 +22,7 @@ class HomeViewModel : ViewModel() {
         _sortingType.value = preferences.readSortingType()
         _sortingReversed.value = preferences.readSortingReversed()
         _dateFilter.value = preferences.readDateFilter()
+        _amountFilter.value = preferences.readAmountFilter()
         _labelFilter.value = preferences.readLabelFilter()
         _isFilterCardOpened.value = preferences.readFilterCardOpened()
 
@@ -64,20 +62,27 @@ class HomeViewModel : ViewModel() {
         timer.end()
     }
 
-    private fun filterExpenses(context: Context, dateFilterChanged: Boolean = false, labelFilterChanged: Boolean = false, notifyChanges: Boolean = true) {
+    private fun filterExpenses(
+        context: Context,
+        dateFilterChanged: Boolean = false,
+        labelFilterChanged: Boolean = false,
+        amountFilterChanged: Boolean = false,
+        notifyChanges: Boolean = true
+    ) {
         val timer = Timer("Filter expenses")
 
         val preferences = ExpensePreferenceManager(context)
-        val dateFilter = _dateFilter.value!!
         val labelFilter = _labelFilter.value!!
+        val amountFilter = _amountFilter.value!!
+        val dateFilter = _dateFilter.value!!
         val expenses = _expenses.value!!
 
-        if (dateFilterChanged)  {
-            preferences.writeDateFilter(dateFilter)
-        }
-        if (labelFilterChanged) {
+        if (labelFilterChanged)
             preferences.writeLabelFilter(labelFilter)
-        }
+        if (amountFilterChanged)
+            preferences.writeAmountFilter(amountFilter)
+        if (dateFilterChanged)
+            preferences.writeDateFilter(dateFilter)
 
         // Reload expenses (for new filter)
         expenses.clear()
@@ -89,6 +94,9 @@ class HomeViewModel : ViewModel() {
             expenses.retainAll{
                 it.created.after(dateFilter.from) && it.created.before(dateFilter.until)
             }
+        }
+        if (amountFilter.enabled) {
+            expenses.retainAll { amountFilter.isOkay(it.cents) }
         }
         if (labelFilter.enabled && labelFilter.labels.isNotEmpty()) {
             when (labelFilter.exclusive) {
@@ -124,11 +132,10 @@ class HomeViewModel : ViewModel() {
         return pos
     }
 
+
     fun toggleLabelFilterEnabled(context: Context) {
         _labelFilter.value!!.enabled = !_labelFilter.value!!.enabled
-        filterExpenses(context,
-            labelFilterChanged = true
-        )
+        filterExpenses(context, labelFilterChanged = true)
     }
 
     fun setLabelFilterExclusive(context: Context, exclusive: Boolean) {
@@ -145,11 +152,22 @@ class HomeViewModel : ViewModel() {
         )
     }
 
+
+    fun toggleAmountFilterEnabled(context: Context) {
+        _amountFilter.value!!.enabled = !_amountFilter.value!!.enabled
+        filterExpenses(context, amountFilterChanged = true)
+    }
+
+    fun setAmountFilter(context: Context, expenses: Boolean, income: Boolean) {
+        _amountFilter.value!!.expenses = expenses
+        _amountFilter.value!!.income = income
+        filterExpenses(context, amountFilterChanged = true)
+    }
+
+
     fun toggleDateFilterEnabled(context: Context) {
         _dateFilter.value!!.enabled = !_dateFilter.value!!.enabled
-        filterExpenses(context,
-            dateFilterChanged = true
-        )
+        filterExpenses(context, dateFilterChanged = true)
     }
 
     fun setDateFilterDates(context: Context, from: Date, to: Date) {
@@ -159,6 +177,7 @@ class HomeViewModel : ViewModel() {
             dateFilterChanged = true
         )
     }
+
 
     fun setFilterCardOpened(context: Context, isOpened: Boolean) {
         _isFilterCardOpened.value = isOpened
@@ -174,16 +193,18 @@ class HomeViewModel : ViewModel() {
     private val _expenses = MutableLiveData<MutableList<Expense>>().apply { value = mutableListOf() }
     private val _sortingType = MutableLiveData<SortingType>()
     private val _sortingReversed = MutableLiveData<Boolean>()
-    private val _dateFilter = MutableLiveData<DateFilter>()
     private val _labelFilter = MutableLiveData<LabelFilter>()
+    private val _amountFilter = MutableLiveData<AmountFilter>()
+    private val _dateFilter = MutableLiveData<DateFilter>()
     private var _isFilterCardOpened = MutableLiveData<Boolean>()
 
     val expenses: LiveData<MutableList<Expense>> = _expenses
     val sumCents: Long get() = expenses.value!!.sumOf { it.cents }
     val sortingType: LiveData<SortingType> = _sortingType
     val sortingReversed: LiveData<Boolean> = _sortingReversed
-    val dateFilter: LiveData<DateFilter> = _dateFilter
     val labelFilter: LiveData<LabelFilter> = _labelFilter
+    val amountFilter: LiveData<AmountFilter> = _amountFilter
+    val dateFilter: LiveData<DateFilter> = _dateFilter
     val isFilterCardOpened: LiveData<Boolean> = _isFilterCardOpened
     var onExpensesChanged: (removeIndex: Int?) -> Unit = { }
 }

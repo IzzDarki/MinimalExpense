@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="label">Label</string>
+    <string name="new_label">Neues label</string>
+    <string name="error_label_cant_be_empty">Label darf nicht leer sein</string>
+    <string name="error_label_already_added">Label existiert bereits</string>
+    <string name="error_label_cant_contain_x">Label darf nicht %s enthalten</string>
+    <string name="label_does_not_exist">Label existiert nicht</string>
+</resources>
