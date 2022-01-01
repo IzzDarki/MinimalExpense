@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -50,7 +51,7 @@
                 android:padding="4dp"
                 app:srcCompat="@drawable/ic_collapse_30dp"/>
 
-            <!-- Row Labels -->
+            <!-- Labels -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/labels_headline"
                 android:layout_width="wrap_content"
@@ -137,14 +138,79 @@
 
             </com.google.android.material.chip.ChipGroup>
 
+            <!-- Type -->
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/type_headline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
 
-            <!-- Row Date -->
+                app:layout_constraintTop_toBottomOf="@id/labels_content_chip_group"
+                app:layout_constraintStart_toStartOf="@id/labels_headline"
+
+                app:layout_constraintHorizontal_bias="0.0"
+                android:layout_marginTop="@dimen/table_row_padding"
+
+                android:paddingTop="@dimen/table_row_padding"
+                android:paddingBottom="@dimen/table_row_padding"
+                android:paddingEnd="@dimen/table_row_padding"
+                android:text="@string/type"
+                android:textAppearance="@style/TextAppearance.MinimalExpense.SectionHeadline" />
+
+            <androidx.appcompat.widget.AppCompatImageButton
+                android:id="@+id/type_enabled_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintWidth_min="@dimen/min_touch_target_size"
+                app:layout_constraintHeight_min="@dimen/min_touch_target_size"
+
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/type_headline"
+                app:layout_constraintBottom_toBottomOf="@id/type_headline"
+
+                android:padding="4dp"
+                android:background="@android:color/transparent"
+                tools:srcCompat="@drawable/ic_filter_off_24dp"/>
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/type_chip_group"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+
+                app:layout_constraintTop_toTopOf="@id/type_headline"
+                app:layout_constraintBottom_toBottomOf="@id/type_headline"
+                app:layout_constraintStart_toEndOf="@id/labels_headline"
+                app:layout_constraintEnd_toEndOf="parent"
+
+                app:selectionRequired="true"
+                app:singleSelection="false"
+                android:layout_marginStart="8dp"
+                tools:viewBindingIgnore="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/type_expense_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="@string/expense"
+                    style="@style/Widget.MaterialComponents.Chip.Choice" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/type_income_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="@string/income"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+            </com.google.android.material.chip.ChipGroup>
+
+            <!-- Date -->
             <com.google.android.material.textview.MaterialTextView
                 android:id="@+id/date_headline"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-                app:layout_constraintTop_toBottomOf="@id/labels_content_chip_group"
+                app:layout_constraintTop_toBottomOf="@id/type_chip_group"
                 app:layout_constraintStart_toStartOf="@id/labels_headline"
 
                 app:layout_constraintHorizontal_bias="0.0"
@@ -225,7 +291,6 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </com.google.android.material.card.MaterialCardView>
-
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"

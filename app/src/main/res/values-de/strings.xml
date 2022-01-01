@@ -65,4 +65,6 @@
     <string name="mode_title">Modus</string>
     <string name="mode_summary">Wähle worauf die App fokussiert sein soll</string>
     <string name="mode_options">Ausgaben|Budget</string>
+    <string name="type">Typ</string>
+    <string name="income_plural">Einnahmen</string>
 </resources>

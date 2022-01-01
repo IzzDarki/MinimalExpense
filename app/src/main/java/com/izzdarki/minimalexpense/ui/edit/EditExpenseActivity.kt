@@ -20,6 +20,7 @@ import com.izzdarki.editlabelscomponent.EditLabelsComponent
 import com.izzdarki.minimalexpense.util.*
 import java.util.*
 import kotlin.math.abs
+import kotlin.math.absoluteValue
 
 class EditExpenseActivity : AppCompatActivity() {
 
@@ -101,8 +102,17 @@ class EditExpenseActivity : AppCompatActivity() {
         }
         // Format number when focus lost
         binding.amountInputEditText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
-            if (!hasFocus && binding.amountInput.error == null)
-                binding.amountInputEditText.setText(formatAmountText(readCents()))
+            if (!hasFocus && binding.amountInput.error == null) {
+                // Toggle expense/income when user has entered a negative sign '-'
+                if (binding.amountInputEditText.text.toString().trim().contains('-')) {
+                    if (!binding.expenseChip.isChecked)
+                        binding.expenseChip.isChecked = true
+                    else
+                        binding.incomeChip.isChecked = true
+                }
+                // Update amount text (also removes negative sign)
+                binding.amountInputEditText.setText(formatAmountText(readCents().absoluteValue))
+            }
         }
         // Format number on IME Action (Done)
         binding.amountInputEditText.setOnEditorActionListener { _, _, _ ->
