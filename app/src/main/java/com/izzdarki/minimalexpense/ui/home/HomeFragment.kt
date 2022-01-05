@@ -20,8 +20,6 @@ import com.izzdarki.minimalexpense.ui.edit.EditExpenseActivity
 import com.izzdarki.minimalexpense.util.*
 import com.izzdarki.minimalexpense.debug.Timer
 import java.util.*
-import kotlin.math.absoluteValue
-import kotlin.math.exp
 
 class HomeFragment : Fragment() {
 
@@ -447,6 +445,7 @@ class HomeFragment : Fragment() {
     }
 
     private fun updateSum() {
+        val settings = SettingsManager(requireContext())
         val amountFilter = viewModel.amountFilter.value!!
         val prefix =
             if (amountFilter.enabled && (!amountFilter.expenses || !amountFilter.income)) {
@@ -455,13 +454,22 @@ class HomeFragment : Fragment() {
                 else
                     getString(R.string.income_plural)
             } else {
-                if (SettingsManager(requireContext()).isModeBudget())
+                if (settings.isModeBudget)
                     getString(R.string.budget)
                 else
                     getString(R.string.expenses)
             }
 
-        activity?.supportActionBar?.title = "$prefix ${formatCurrency(viewModel.sumCents.absoluteValue)}"
+        val sum = formatCurrency(
+            currencySymbol =  settings.currencySymbol,
+            cents =
+                if (settings.isModeBudget)
+                    -viewModel.sumCents
+                else
+                    viewModel.sumCents
+        )
+
+        activity?.supportActionBar?.title = "$prefix $sum"
     }
 
     private fun updateFilterLabelsComponent() {

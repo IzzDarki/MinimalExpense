@@ -1,21 +1,24 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="Theme.MinimalExpense" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <!-- Primary brand color. -->
+    <style name="Theme.MinimalExpenseBase" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary color. -->
         <item name="colorPrimary">@color/primary_color</item>
         <item name="colorPrimaryVariant">@color/primary_color_dark</item>
         <item name="colorOnPrimary">@android:color/primary_text_dark</item>
 
-        <!-- Secondary brand color. -->
+        <!-- Secondary color. -->
         <item name="colorSecondary">@color/secondary_color</item>
         <item name="colorSecondaryVariant">@color/secondary_color_dark</item>
         <item name="colorOnSecondary">@android:color/primary_text_light</item>
 
-        <!-- Customize your theme here. -->
+        <!-- Customize theme here. -->
         <item name="alertDialogTheme">@style/Theme.MinimalExpense.RoundedCornersDialog</item>
         <item name="colorAccent">@color/primary_color</item>
     </style>
+    
+    <!-- Actual application theme -->
+    <style name="Theme.MinimalExpense" parent="Theme.MinimalExpenseBase" />
 
     <style name="Theme.MinimalExpense.NoActionBar">
         <item name="windowNoTitle">true</item>

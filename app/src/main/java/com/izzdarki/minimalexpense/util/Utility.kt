@@ -19,6 +19,8 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import java.io.IOException
 import java.security.GeneralSecurityException
+import java.util.*
+import kotlin.math.absoluteValue
 
 
 fun openEncryptedPreferences(context: Context, preferencesName: String): SharedPreferences {
@@ -111,8 +113,11 @@ fun <T> MutableLiveData<T>.notifyObserver() {
 }
 
 // region very specific utility
-fun formatCurrency(cents: Long)
-    = "%.2f €".format(cents.toFloat() / 100).replace(",", ".")
+fun formatCurrencyWithoutSymbol(cents: Long)
+    = "%d.%02d".format(Locale.ENGLISH, cents / 100, cents.absoluteValue % 100)
+
+fun formatCurrency(currencySymbol: String, cents: Long)
+    = "${formatCurrencyWithoutSymbol(cents)} $currencySymbol"
 
 fun getDecimalPlaces(floatString: String, decimalSeparator: Char = '.'): Int {
     val commaIndex = floatString.indexOf(decimalSeparator)
