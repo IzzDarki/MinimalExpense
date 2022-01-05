@@ -17,6 +17,7 @@ import com.izzdarki.minimalexpense.data.ExpensePreferenceManager
 import com.izzdarki.minimalexpense.data.Expense
 import com.izzdarki.minimalexpense.databinding.ActivityEditExpenseBinding
 import com.izzdarki.editlabelscomponent.EditLabelsComponent
+import com.izzdarki.minimalexpense.data.SettingsManager
 import com.izzdarki.minimalexpense.util.*
 import java.util.*
 import kotlin.math.abs
@@ -39,8 +40,6 @@ class EditExpenseActivity : AppCompatActivity() {
             intent.putExtra(EXTRA_CREATE_NEW, true)
             context.startActivity(intent)
         }
-
-        private fun formatAmountText(cents: Long) = "%.2f".format(cents.toFloat() / 100).replace(",", ".")
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -89,7 +88,8 @@ class EditExpenseActivity : AppCompatActivity() {
         }
 
         // Amount input
-        val amountText = formatAmountText(abs(expense.cents))
+        binding.amountInput.suffixText = SettingsManager(this).currencySymbol
+        val amountText = formatCurrencyWithoutSymbol(expense.cents.absoluteValue)
         binding.amountInputEditText.setText(amountText)
         binding.amountInputEditText.doAfterTextChanged {
             val amountString = binding.amountInputEditText.text.toString()
@@ -111,13 +111,13 @@ class EditExpenseActivity : AppCompatActivity() {
                         binding.incomeChip.isChecked = true
                 }
                 // Update amount text (also removes negative sign)
-                binding.amountInputEditText.setText(formatAmountText(readCents().absoluteValue))
+                binding.amountInputEditText.setText(formatCurrencyWithoutSymbol(readCents().absoluteValue))
             }
         }
         // Format number on IME Action (Done)
         binding.amountInputEditText.setOnEditorActionListener { _, _, _ ->
             if (binding.amountInput.error == null) {
-                binding.amountInputEditText.setText(formatAmountText(readCents()))
+                binding.amountInputEditText.setText(formatCurrencyWithoutSymbol(readCents()))
                 binding.amountInputEditText.setSelection(binding.amountInputEditText.length())
                 return@setOnEditorActionListener true
             }
@@ -276,11 +276,14 @@ class EditExpenseActivity : AppCompatActivity() {
     private fun readName(): String = binding.nameInputEditText.text.toString().trim()
 
     private fun readCents(): Long {
-        val amount = binding.amountInputEditText.text
+        val cents = binding.amountInputEditText.text
             .toString()
-            .toDoubleOrNull() ?: return 0
+            .split('.').run {
+                val beforeComma = getOrNull(0)?.toLongOrNull() ?: 0
+                val afterComma = getOrNull(1)?.toLongOrNull() ?: 0
 
-        val cents = (amount * 100).toLong()
+                beforeComma * 100 + afterComma
+            }
 
         return if (binding.incomeChip.isChecked)
             -cents

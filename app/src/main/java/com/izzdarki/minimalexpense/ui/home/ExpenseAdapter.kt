@@ -11,12 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.izzdarki.minimalexpense.R
 import com.izzdarki.minimalexpense.data.Expense
-import com.izzdarki.minimalexpense.data.ExpensePreferenceManager
 import com.izzdarki.minimalexpense.data.SettingsManager
 import com.izzdarki.minimalexpense.databinding.AdapterExpenseBinding
 import com.izzdarki.minimalexpense.util.*
 import kotlin.math.abs
-import kotlin.math.exp
+import kotlin.math.absoluteValue
 
 class ExpenseAdapter(
     private val expenses: List<Expense>,
@@ -65,7 +64,10 @@ class ExpenseAdapter(
     override fun onBindViewHolder(holder: ViewHolder, pos: Int) {
         holder.nameTextView.text = expenses[pos].name
 
-        holder.amountTextView.text = formatCurrency(abs(expenses[pos].cents))
+        holder.amountTextView.text = formatCurrency(
+            currencySymbol = SettingsManager(holder.context).currencySymbol,
+            expenses[pos].cents.absoluteValue
+        )
         holder.amountTextView.setTextColor(
             holder.context.getColor(
                 if (expenses[pos].cents >= 0)

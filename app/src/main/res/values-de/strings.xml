@@ -67,4 +67,7 @@
     <string name="mode_options">Ausgaben|Budget</string>
     <string name="type">Typ</string>
     <string name="income_plural">Einnahmen</string>
+    <string name="currency">Währung</string>
+    <string name="currency_summary">Währungssymbol eingeben</string>
+    <string name="currency_default">€</string>
 </resources>
