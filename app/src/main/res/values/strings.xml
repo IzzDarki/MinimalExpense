@@ -75,7 +75,7 @@
     <string name="email_content" translatable="false">izzdarki.dev@gmail.com</string>
     <string name="mailto_link" translatable="false">mailto:izzdarki.dev@gmail.com?subject=MinimalExpense</string>
     <string name="version_title">Version</string>
-    <string name="version_name" translatable="false">1.0.3</string>
+    <string name="version_name" translatable="false">1.0.4</string>
     <string name="mode_title">Mode</string>
     <string name="mode_summary">Select what the app should focus on</string>
     <string name="mode_key" translatable="false">preference.mode</string>
