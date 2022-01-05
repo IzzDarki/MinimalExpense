@@ -20,6 +20,7 @@ import com.izzdarki.minimalexpense.ui.edit.EditExpenseActivity
 import com.izzdarki.minimalexpense.util.*
 import com.izzdarki.minimalexpense.debug.Timer
 import java.util.*
+import kotlin.math.absoluteValue
 
 class HomeFragment : Fragment() {
 
@@ -460,14 +461,22 @@ class HomeFragment : Fragment() {
                     getString(R.string.expenses)
             }
 
-        val sum = formatCurrency(
-            currencySymbol =  settings.currencySymbol,
-            cents =
+        val cents =
+            if (!amountFilter.enabled || (amountFilter.expenses && amountFilter.income)) {
                 if (settings.isModeBudget)
                     -viewModel.sumCents
                 else
                     viewModel.sumCents
+            }
+            else
+                viewModel.sumCents.absoluteValue
+
+
+        val sum = formatCurrency(
+            settings.currencySymbol,
+            cents
         )
+
 
         activity?.supportActionBar?.title = "$prefix $sum"
     }
