@@ -10,12 +10,8 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import kotlin.math.max
 
 
-/**
- * @attr name options
- */
 class ChoicePreference : Preference {
 
     private val options: MutableList<String> = mutableListOf()
@@ -25,7 +21,7 @@ class ChoicePreference : Preference {
         attrs: AttributeSet?,
         defStyleAttr: Int,
         defStyleRes: Int
-    ) : super(context, attrs, defStyleAttr, defStyleRes) {
+    ) : super(context!!, attrs, defStyleAttr, defStyleRes) {
         widgetLayoutResource = R.layout.preference_choice
         if (attrs == null)
             throw IllegalArgumentException("Expected attrs to be not null")
@@ -44,14 +40,12 @@ class ChoicePreference : Preference {
     constructor(context: Context?, attrs: AttributeSet?) : this(context, attrs,
         TypedArrayUtils.getAttr(
             context!!,
-            R.attr.preferenceStyle,
+            androidx.preference.R.attr.preferenceStyle,
             android.R.attr.preferenceStyle
         ))
 
-    override fun onBindViewHolder(holder: PreferenceViewHolder?) {
+    override fun onBindViewHolder(holder: PreferenceViewHolder) {
         super.onBindViewHolder(holder)
-        if (holder == null)
-            return
 
         val layoutInflater = LayoutInflater.from(context)
 
