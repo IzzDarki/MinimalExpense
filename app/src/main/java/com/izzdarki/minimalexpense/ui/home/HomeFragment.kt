@@ -30,18 +30,24 @@ class HomeFragment : Fragment() {
         //setRetainInstance(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val timer = Timer("Home Fragment on create view")
-
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         viewModel.init(requireContext())
 
         // filter card
         binding.filterCollapseButton.setOnClickListener {
-           setFilterCardOpened(false)
+            setFilterCardOpened(false)
         }
         setFilterCardOpened(
             viewModel.isFilterCardOpened.value!!
@@ -71,9 +77,6 @@ class HomeFragment : Fragment() {
         }
 
         calledAfterOnCreateView = true
-
-        timer.end()
-        return root
     }
 
     private fun onCreateLabelFilter() {
