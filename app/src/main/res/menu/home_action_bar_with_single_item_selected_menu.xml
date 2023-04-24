@@ -18,17 +18,25 @@
 
     <!-- these menu items is also in the other home action bar menu files -->
     <item
+        android:id="@+id/home_action_bar_search"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search_24dp"
+        android:orderInCategory="3"
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView" />
+
+    <item
         android:id="@+id/home_action_bar_filter"
         android:title="@string/filter"
         android:icon="@drawable/ic_filter_24dp"
-        android:orderInCategory="3"
+        android:orderInCategory="4"
         app:showAsAction="ifRoom"/>
 
     <item
         android:id="@id/home_action_bar_sort"
         android:title="@string/sort"
         android:icon="@drawable/ic_sort_24dp"
-        android:orderInCategory="4"
+        android:orderInCategory="5"
         app:showAsAction="ifRoom">
 
         <!-- this submenu is also in the other home action bar menu files -->

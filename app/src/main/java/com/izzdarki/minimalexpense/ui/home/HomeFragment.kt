@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
@@ -237,6 +238,21 @@ class HomeFragment : Fragment() {
             HomeViewModel.SortingType.ByAmount -> menu.findItem(R.id.home_action_bar_sort_by_amount).isChecked = true
         }
         menu.findItem(R.id.home_action_bar_sort_reverse).isChecked = viewModel.sortingReversed.value!!
+
+        // Search
+        val searchView = menu.findItem(R.id.home_action_bar_search).actionView as SearchView
+        searchView.queryHint = getString(R.string.search_for_expense_or_label)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                viewModel.setSearchTerm(requireContext(), searchTerm = query ?: "")
+                return true  // Query has been handled
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return this.onQueryTextSubmit(newText)
+            }
+
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

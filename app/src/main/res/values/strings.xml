@@ -62,6 +62,8 @@
     <string name="income">Income</string>
     <string name="income_plural">Income</string>
     <string name="type">Type</string>
+    <string name="search">Search</string>
+    <string name="search_for_expense_or_label">Search for expense or label</string>
 
     <!-- Content descriptions -->
     <string name="nav_header_content_description">Navigation header</string>
