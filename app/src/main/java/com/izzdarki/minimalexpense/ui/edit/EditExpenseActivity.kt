@@ -41,6 +41,15 @@ class EditExpenseActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var binding: ActivityEditExpenseBinding
+    private val expensePreferences by lazy { ExpensePreferenceManager(this) }
+    private lateinit var expense: Expense
+    private lateinit var editLabelsComponent: EditLabelsComponent
+
+    private val hasBeenModified get() = expense != expensePreferences.readExpense(expense.id)
+    private val isCreateNewIntent get() = intent.getBooleanExtra(EXTRA_CREATE_NEW, false)
+    private val isError get() = binding.nameInput.error != null || binding.amountInput.error != null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -51,7 +60,7 @@ class EditExpenseActivity : AppCompatActivity() {
             Expense(
                 id = UUID.randomUUID(),
                 name = getString(R.string.expense_default_name),
-                cents = 0,
+                cents = 0
             )
         } else {
             expensePreferences.readExpense(intent.getSerializableExtra(EXTRA_ID) as UUID)
@@ -131,9 +140,12 @@ class EditExpenseActivity : AppCompatActivity() {
         )
         editLabelsComponent.displayLabels(expense.labels)
 
+        // Notes input
+        binding.notesInputEditText.setText(expense.notes)
+
         // Creation date
         updateCreationDateText()
-        binding.createdTextView.setOnLongClickListener {
+        binding.createdTextView.setOnClickListener {
             selectDateDialog(
                 context = this,
                 initialDate = expense.created
@@ -141,7 +153,7 @@ class EditExpenseActivity : AppCompatActivity() {
                 expense.created = date
                 updateCreationDateText()
             }
-            true // Long click always consumed
+            true // click always consumed
         }
     }
 
@@ -190,6 +202,7 @@ class EditExpenseActivity : AppCompatActivity() {
             expense.name = readName()
             expense.cents = readCents()
             expense.labels = readLabels()
+            expense.notes = readNotes()
             expensePreferences.writeExpense(expense)
             finish()
         }
@@ -257,16 +270,10 @@ class EditExpenseActivity : AppCompatActivity() {
             super.dispatchTouchEvent(ev)
     }
 
-    private lateinit var binding: ActivityEditExpenseBinding
-    private val expensePreferences by lazy { ExpensePreferenceManager(this) }
-    private lateinit var expense: Expense
-    private lateinit var editLabelsComponent: EditLabelsComponent
-
-    private val hasBeenModified get() = expense != expensePreferences.readExpense(expense.id)
-    private val isCreateNewIntent get() = intent.getBooleanExtra(EXTRA_CREATE_NEW, false)
-    private val isError get() = binding.nameInput.error != null || binding.amountInput.error != null
 
     private fun readName(): String = binding.nameInputEditText.text.toString().trim()
+
+    private fun readNotes(): String? = binding.notesInputEditText.text?.toString()?.trim()
 
     private fun checkCentsErrorMessage(): String? {
         return binding.amountInputEditText.text

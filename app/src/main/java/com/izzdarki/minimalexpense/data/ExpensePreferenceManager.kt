@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import com.izzdarki.editlabelscomponent.EditLabelsComponent
 import com.izzdarki.minimalexpense.ui.home.HomeViewModel.SortingType
 import com.izzdarki.minimalexpense.util.openEncryptedPreferences
-import java.lang.StringBuilder
 import java.util.*
 
 class ExpensePreferenceManager(context: Context) {
@@ -20,6 +19,7 @@ class ExpensePreferenceManager(context: Context) {
         name = preferences!!.getString(NAME.format(id), null)!!,
         cents = preferences!!.getLong(CENTS.format(id), -1),
         labels = readExpenseLabels(id),
+        notes = preferences!!.getString(NOTES.format(id), null),
         created = Date(preferences!!.getLong(CREATED.format(id), 0)),
         altered = Date(preferences!!.getLong(ALTERED.format(id), 0)),
     )
@@ -30,6 +30,7 @@ class ExpensePreferenceManager(context: Context) {
             .putString(NAME.format(id), expense.name)
             .putLong(CENTS.format(id), expense.cents)
             .putString(LABELS.format(id), expense.labels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR))
+            .putString(NOTES.format(id), expense.notes)
             .putLong(CREATED.format(id), expense.created.time)
             .putLong(ALTERED.format(id), expense.altered.time)
             .apply()
@@ -41,6 +42,7 @@ class ExpensePreferenceManager(context: Context) {
             .remove(NAME.format(id))
             .remove(CENTS.format(id))
             .remove(LABELS.format(id))
+            .remove(NOTES.format(id))
             .remove(CREATED.format(id))
             .remove(ALTERED.format(id))
             .apply()
@@ -190,6 +192,7 @@ class ExpensePreferenceManager(context: Context) {
         private const val NAME: String = "%s.name" // String
         private const val CENTS: String = "%s.cents" // Long
         private const val LABELS: String = "%s.labels" // String (List)
+        private const val NOTES: String = "%s.notes" // String
         private const val CREATED: String = "%s.created" // Long (Date)
         private const val ALTERED: String = "%s.altered" // Long (Date)
         private const val ALL_EXPENSES: String = "all_expenses" // String (List)

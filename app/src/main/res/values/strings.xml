@@ -64,6 +64,7 @@
     <string name="type">Type</string>
     <string name="search">Search</string>
     <string name="search_for_expense_or_label">Search for expense or label</string>
+    <string name="notes">Notes</string>
 
     <!-- Content descriptions -->
     <string name="nav_header_content_description">Navigation header</string>
