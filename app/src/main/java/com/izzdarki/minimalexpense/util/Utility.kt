@@ -119,9 +119,12 @@ fun formatCurrencyWithoutSymbol(cents: Long)
 fun formatCurrency(currencySymbol: String, cents: Long)
     = "${formatCurrencyWithoutSymbol(cents)} $currencySymbol"
 
-fun getDecimalPlaces(floatString: String, decimalSeparator: Char = '.'): Int {
-    val commaIndex = floatString.indexOf(decimalSeparator)
-    return if (commaIndex == -1)
+fun getDecimalPlaces(floatString: String, decimalSeparators: List<Char> = listOf('.', ',')): Int {
+    val commaIndex = decimalSeparators
+            .map { floatString.indexOf(it) }
+            .filter { it == -1 }
+            .minOrNull()
+    return if (commaIndex == null)
         0
     else
         floatString.length - commaIndex - 1
