@@ -1,0 +1,3 @@
+[submodule "PreferenceUtility"]
+	path = PreferenceUtility
+	url = https://github.com/IzzDarki/AndroidPreferenceUtility
