@@ -32,8 +32,8 @@
     <string name="filter">Filter</string>
     <string name="labels">Labels</string>
     <string name="date">Datum</string>
-    <string name="inclusive">Inklusiv</string>
-    <string name="exclusive">Exklusiv</string>
+    <string name="union">Vereinigung</string>
+    <string name="intersection">Schnitt</string>
     <string name="from">Von</string>
     <string name="until">Bis</string>
     <string name="enter_date">Datum eingeben</string>
