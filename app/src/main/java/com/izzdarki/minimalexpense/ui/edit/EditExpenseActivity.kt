@@ -163,6 +163,7 @@ class EditExpenseActivity : AppCompatActivity() {
         expense.name = readName()
         expense.cents = readCents()
         expense.labels = readLabels()
+        expense.notes = readNotes()
 
         if (isCreateNewIntent || hasBeenModified) {
             val title = getString(
@@ -268,7 +269,6 @@ class EditExpenseActivity : AppCompatActivity() {
         else
             super.dispatchTouchEvent(ev)
     }
-
 
     private fun readName(): String = binding.nameInputEditText.text.toString().trim()
 
