@@ -16,7 +16,6 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import java.lang.Exception
 import java.util.*
-import kotlin.math.min
 
 val dateNow: Date get() = Calendar.getInstance().time
 
@@ -169,7 +168,7 @@ fun selectDateRangeDialog(
 
     // Setup month chips
     for (month in monthList) {
-        val chip: Chip = layoutInflater.inflate(R.layout.choice_chip, null) as Chip
+        val chip: Chip = layoutInflater.inflate(R.layout.choice_chip, dialogViewBinding.monthChipGroup, false) as Chip
         chip.text = month.second
         chip.isChecked = month.first == rangeMonth
         chip.setOnClickListener {
