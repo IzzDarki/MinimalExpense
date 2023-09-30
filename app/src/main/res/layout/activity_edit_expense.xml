@@ -7,8 +7,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingStart="@dimen/activity_horizontal_margin"
-    android:paddingEnd="@dimen/activity_horizontal_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context=".ui.edit.EditExpenseActivity">
 
@@ -23,6 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
 
+        android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingEnd="@dimen/activity_horizontal_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
@@ -40,7 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:hint="@string/name"
                 app:errorEnabled="true">
 
@@ -66,14 +66,17 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/expense"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:checkable="true"
+                    tools:checked="true"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/income_chip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/income"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:checkable="true"/>
 
             </com.google.android.material.chip.ChipGroup>
 
@@ -82,7 +85,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:hint="@string/amount"
                 app:errorEnabled="true">
 
@@ -104,11 +107,11 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/labels_add_chip"
-                    style="@style/Widget.MaterialComponents.Chip.Action"
+                    style="@style/Widget.Material3.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/label"
-                    app:chipBackgroundColor="@color/primary_color"
+                    app:chipIconVisible="true"
                     app:chipIcon="@drawable/ic_plus_24dp" />
 
             </com.google.android.material.chip.ChipGroup>
@@ -119,7 +122,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/activity_horizontal_margin"
 
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:hint="@string/notes"
                 app:errorEnabled="true">
 
