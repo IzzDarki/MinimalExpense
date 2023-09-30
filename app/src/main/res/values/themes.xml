@@ -31,6 +31,7 @@
 
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- Make sure status bar text is readable in both light and dark mode -->
         <item name="android:windowLightStatusBar">@bool/theme_window_light_status_bar</item>
 
         <!-- OLD Primary color. -->

@@ -5,7 +5,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
+    android:fitsSystemWindows="false"
     tools:openDrawer="start">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,9 +14,8 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".ui.MainActivity">
 
-        <androidx.appcompat.widget.Toolbar
+        <include layout="@layout/toolbar"
             android:id="@+id/toolbar"
-            style="@style/Toolbar"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

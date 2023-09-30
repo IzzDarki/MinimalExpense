@@ -67,8 +67,8 @@ class EditExpenseActivity : AppCompatActivity() {
         }
 
         // Toolbar
-        binding.toolbar.title = expense.name
-        setSupportActionBar(binding.toolbar)
+        binding.toolbar.toolbar.title = expense.name
+        setSupportActionBar(binding.toolbar.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Name input
@@ -153,7 +153,6 @@ class EditExpenseActivity : AppCompatActivity() {
                 expense.created = date
                 updateCreationDateText()
             }
-            true // click always consumed
         }
     }
 
