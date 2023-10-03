@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.res.ResourcesCompat
@@ -21,7 +22,6 @@ import com.izzdarki.minimalexpense.data.SettingsManager
 import com.izzdarki.minimalexpense.databinding.FragmentHomeBinding
 import com.izzdarki.minimalexpense.ui.edit.EditExpenseActivity
 import com.izzdarki.minimalexpense.util.*
-import com.izzdarki.minimalexpense.debug.Timer
 import java.util.*
 import kotlin.math.absoluteValue
 
@@ -47,6 +47,12 @@ class HomeFragment : Fragment() {
 
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         viewModel.init(requireContext())
+
+        // back pressed callback
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            clearSelectionOnBackPressedCallback
+        )
 
         // filter card
         binding.filterCollapseButton.setOnClickListener {
@@ -198,15 +204,19 @@ class HomeFragment : Fragment() {
         ).build()
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<String>() {
             override fun onSelectionChanged() {
+                clearSelectionOnBackPressedCallback.isEnabled = selectionTracker.hasSelection()
                 activity?.invalidateOptionsMenu()
             }
         })
         adapter.selectionTracker = selectionTracker
     }
 
-    override fun onResume() {
-        val timer = Timer("Home Fragment on resume")
+    override fun onPause() {
+        super.onPause()
+        clearSelectionOnBackPressedCallback.isEnabled = false
+    }
 
+    override fun onResume() {
         if (!calledAfterOnCreateView) {
             viewModel.init(requireContext()) // Only do this when onCreateView was not called before
             viewModel.onExpensesChanged.invoke(null)
@@ -214,9 +224,9 @@ class HomeFragment : Fragment() {
         else
             calledAfterOnCreateView = false
 
-        super.onResume()
+        clearSelectionOnBackPressedCallback.isEnabled = adapter?.selectionTracker?.hasSelection() ?: false
 
-        timer.end()
+        super.onResume()
     }
 
     override fun onDestroyView() {
@@ -521,5 +531,10 @@ class HomeFragment : Fragment() {
 
     private val adapter get() = binding.recyclerView.adapter as? ExpenseAdapter
     private val isFilterEdit get() = binding.filterCard.visibility == View.VISIBLE
+    private val clearSelectionOnBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
+        override fun handleOnBackPressed() {
+            adapter?.selectionTracker?.clearSelection()
+        }
+    }
 
 }
