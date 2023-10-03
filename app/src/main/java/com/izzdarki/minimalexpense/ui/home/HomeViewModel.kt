@@ -118,24 +118,23 @@ class HomeViewModel : ViewModel() {
         if (amountFilter.enabled) {
             expenses.retainAll { amountFilter.isOkay(it.cents) }
         }
-        if (labelFilter.enabled && labelFilter.labels.isNotEmpty()) {
-            when (labelFilter.exclusive) {
+        if (labelFilter.enabled && (labelFilter.includedLabels.isNotEmpty() || labelFilter.excludedLabels.isNotEmpty())) {
+            when (labelFilter.isIntersection) {
                 false -> {
                     expenses.retainAll {
-                        it.labels.containsAny(labelFilter.labels)
+                        it.labels.containsAny(labelFilter.includedLabels) || !it.labels.containsAll(labelFilter.excludedLabels)
                     }
                 }
                 true -> {
-                    expenses.removeAll {
-                        !it.labels.containsAll(labelFilter.labels)
+                    expenses.retainAll {
+                        it.labels.containsAll(labelFilter.includedLabels) && !it.labels.containsAny(labelFilter.excludedLabels)
                     }
                 }
             }
         }
         if (searchTerm != "") {
             expenses.retainAll {
-                it.name.contains(searchTerm, ignoreCase = true)
-                        || it.labels.any { label -> label.contains(searchTerm, ignoreCase = true) }
+                it.name.contains(searchTerm, ignoreCase = true) || it.labels.any { label -> label.contains(searchTerm, ignoreCase = true) }
             }
         }
 
@@ -166,15 +165,16 @@ class HomeViewModel : ViewModel() {
         filterExpenses(context, labelFilterChanged = true)
     }
 
-    fun setLabelFilterExclusive(context: Context, exclusive: Boolean) {
-        _labelFilter.value!!.exclusive = exclusive
+    fun setLabelFilterIntersection(context: Context, exclusive: Boolean) {
+        _labelFilter.value!!.isIntersection = exclusive
         filterExpenses(context,
             labelFilterChanged = true
         )
     }
 
-    fun setLabelFilter(context: Context, labels: Set<String>) {
-        _labelFilter.value!!.labels = labels.toMutableSet()
+    fun setLabelFilter(context: Context, includedLabels: Set<String>, exludedLabels: Set<String>) {
+        _labelFilter.value!!.includedLabels = includedLabels.toMutableSet()
+        _labelFilter.value!!.excludedLabels = exludedLabels.toMutableSet()
         filterExpenses(context,
             labelFilterChanged = true
         )

@@ -98,21 +98,21 @@
                 tools:viewBindingIgnore="true">
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/inclusive_chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:text="@string/union"
-                    style="@style/Widget.Material3.Chip.Assist"
-                    android:checkable="true"
-                    tools:checked="true"/>
-
-                <com.google.android.material.chip.Chip
                     android:id="@+id/exclusive_chip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
                     android:text="@string/intersection"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:checkable="true"
+                    tools:checked="true"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/inclusive_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="@string/union"
                     style="@style/Widget.Material3.Chip.Assist"
                     android:checkable="true"/>
 
@@ -124,9 +124,11 @@
                 android:layout_height="wrap_content"
 
                 app:layout_constraintTop_toBottomOf="@id/labels_inclusive_exclusive_chip_group"
-                app:layout_constraintStart_toStartOf="@id/labels_inclusive_exclusive_chip_group"
+                app:layout_constraintStart_toStartOf="@id/labels_headline"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:chipSpacingVertical="0dp"
 
+                app:singleSelection="false"
                 tools:viewBindingIgnore="true">
 
                 <com.google.android.material.chip.Chip

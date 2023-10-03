@@ -13,6 +13,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.izzdarki.editlabelscomponent.EditLabelsComponent
+import com.izzdarki.editlabelscomponent.generateStrikethroughChip
+import com.izzdarki.editlabelscomponent.strikethroughOnCheckedChanged
 import com.izzdarki.minimalexpense.R
 import com.izzdarki.minimalexpense.data.ExpensePreferenceManager
 import com.izzdarki.minimalexpense.data.SettingsManager
@@ -86,28 +88,37 @@ class HomeFragment : Fragment() {
             viewModel.toggleLabelFilterEnabled(requireContext())
             updateLabelFilterEnabled()
         }
-        binding.inclusiveChip.isChecked = !viewModel.labelFilter.value!!.exclusive
-        binding.exclusiveChip.isChecked = viewModel.labelFilter.value!!.exclusive
+        binding.inclusiveChip.isChecked = !viewModel.labelFilter.value!!.isIntersection
+        binding.exclusiveChip.isChecked = viewModel.labelFilter.value!!.isIntersection
         binding.inclusiveChip.setOnClickListener {
-            viewModel.setLabelFilterExclusive(requireContext(), false)
+            viewModel.setLabelFilterIntersection(requireContext(), false)
             binding.inclusiveChip.isChecked = true
         }
         binding.exclusiveChip.setOnClickListener {
-            viewModel.setLabelFilterExclusive(requireContext(), true)
+            viewModel.setLabelFilterIntersection(requireContext(), true)
             binding.exclusiveChip.isChecked = true
         }
+        val checkedColor = requireContext().getColor(R.color.income_color).withAlpha(70)
+        val uncheckedColor = requireContext().getColor(R.color.expense_color).withAlpha(70)
         filterLabelsComponent = EditLabelsComponent(
             binding.labelsContentChipGroup,
             binding.labelsAddChip,
             allLabels = ExpensePreferenceManager(requireContext()).getSortedLabelsDropdown(),
             allowNewLabels = false,
-            onLabelChanged = {
-                viewModel.setLabelFilter(requireContext(), filterLabelsComponent.currentLabels)
+            checkableFunctionality = true,
+            generateChip = { context, label, isChecked -> generateStrikethroughChip(checkedColor, uncheckedColor, context, label, isChecked) }, // strike through unchecked labels
+            onCheckedChanged = { label, isChecked, chip ->
+                strikethroughOnCheckedChanged(checkedColor, uncheckedColor, label, isChecked, chip) // strike through unchecked labels
+                updateLabelFilterInViewModel()
             }
         )
+        filterLabelsComponent.setOnLabelChanged { _, _, _ ->
+            updateLabelFilterInViewModel()
+        }
         // Load initial labels
-        filterLabelsComponent.displayLabels(
-            viewModel.labelFilter.value!!.labels
+        filterLabelsComponent.displayLabelsWithCheckedStatus(
+            viewModel.labelFilter.value!!.includedLabels.map { label -> Pair(label, true) }
+                .union(viewModel.labelFilter.value!!.excludedLabels.map { label -> Pair(label, false) })
         )
     }
 
@@ -361,6 +372,10 @@ class HomeFragment : Fragment() {
             binding.exclusiveChip.visibility = View.INVISIBLE
             binding.labelsContentChipGroup.visibility = View.GONE
         }
+    }
+
+    private fun updateLabelFilterInViewModel() {
+        viewModel.setLabelFilter(requireContext(), filterLabelsComponent.currentCheckedLabels, filterLabelsComponent.currentUncheckedLabels)
     }
 
 

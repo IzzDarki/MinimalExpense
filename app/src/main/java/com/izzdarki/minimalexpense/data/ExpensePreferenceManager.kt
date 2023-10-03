@@ -107,11 +107,15 @@ class ExpensePreferenceManager(context: Context) {
     }
 
     fun readLabelFilter() = LabelFilter(
-        labels = preferences!!.getString(FILTER_LABELS, "")!!
+        includedLabels = preferences!!.getString(FILTER_INCLUDED_LABELS, "")!!
             .split(EditLabelsComponent.DEFAULT_SEPARATOR)
             .filter { it.isNotEmpty() }
             .toMutableSet(),
-        exclusive = preferences!!.getBoolean(FILTER_LABELS_EXCLUSIVE, false),
+        excludedLabels = preferences!!.getString(FILTER_EXCLUDED_LABELS, "")!!
+            .split(EditLabelsComponent.DEFAULT_SEPARATOR)
+            .filter { it.isNotEmpty() }
+            .toMutableSet(),
+        isIntersection = preferences!!.getBoolean(FILTER_LABELS_INTERSECTION, true),
         enabled = preferences!!.getBoolean(FILTER_LABELS_ENABLED, false)
     )
 
@@ -123,11 +127,14 @@ class ExpensePreferenceManager(context: Context) {
 
     fun writeLabelFilter(labelFilter: LabelFilter) {
         preferences!!.edit().putString(
-            FILTER_LABELS,
-            labelFilter.labels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR)
+            FILTER_INCLUDED_LABELS,
+            labelFilter.includedLabels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR)
+        ).putString(
+            FILTER_EXCLUDED_LABELS,
+            labelFilter.excludedLabels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR)
         ).putBoolean(
-            FILTER_LABELS_EXCLUSIVE,
-            labelFilter.exclusive
+            FILTER_LABELS_INTERSECTION,
+            labelFilter.isIntersection
         ).putBoolean(
             FILTER_LABELS_ENABLED,
             labelFilter.enabled
@@ -198,8 +205,9 @@ class ExpensePreferenceManager(context: Context) {
         private const val ALL_EXPENSES: String = "all_expenses" // String (List)
         private const val SORTING_TYPE: String = "sorting_type" // Int (SortingType)
         private const val SORTING_REVERSED: String = "sorting_reversed" // Boolean
-        private const val FILTER_LABELS: String = "filter_labels" // String (List)
-        private const val FILTER_LABELS_EXCLUSIVE: String = "filter_labels_exclusive" // Boolean
+        private const val FILTER_INCLUDED_LABELS: String = "filter_labels" // String (List)
+        private const val FILTER_EXCLUDED_LABELS: String = "filter_excluded_labels" // String (List)
+        private const val FILTER_LABELS_INTERSECTION: String = "filter_labels_exclusive" // Boolean
         private const val FILTER_LABELS_ENABLED: String = "filter_labels_enabled" // Boolean
         private const val FILTER_AMOUNT_EXPENSES: String = "filter_amount_expenses" // Boolean
         private const val FILTER_AMOUNT_INCOME: String = "filter_amount_income" // Boolean
