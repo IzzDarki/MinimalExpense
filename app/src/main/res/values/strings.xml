@@ -82,7 +82,7 @@
     <string name="mode_title">Mode</string>
     <string name="mode_summary">Select what the app should focus on</string>
     <string name="mode_key" translatable="false">preference.mode</string>
-    <string name="mode_options">Expense|Budget</string>
+    <string name="mode_options">Expenses|Budget</string>
     <string name="currency">Currency</string>
     <string name="currency_summary">Enter a currency symbol</string>
     <string name="currency_key" translatable="false">preference.currency</string>
