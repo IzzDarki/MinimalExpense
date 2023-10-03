@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Minimal Expense Debug</string>
+    <string name="version_name" translatable="false">1.1.0-alpha.0 (Debug)</string> <!-- TODO Keep this up to date -->
 </resources>
