@@ -67,8 +67,8 @@ class EditExpenseActivity : AppCompatActivity() {
         }
 
         // Toolbar
-        binding.toolbar.toolbar.title = expense.name
-        setSupportActionBar(binding.toolbar.toolbar)
+        binding.toolbarLayout.toolbar.title = expense.name
+        setSupportActionBar(binding.toolbarLayout.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Name input

@@ -11,7 +11,7 @@
     tools:context=".ui.edit.EditExpenseActivity">
 
     <include layout="@layout/toolbar"
-        android:id="@+id/toolbar"
+        android:id="@+id/toolbar_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
@@ -24,7 +24,7 @@
         android:paddingEnd="@dimen/activity_horizontal_margin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintTop_toBottomOf="@id/toolbar_layout"
         app:layout_constraintBottom_toTopOf="@id/created_text_view"
 
         android:scrollbars="none">

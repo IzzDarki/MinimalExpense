@@ -15,7 +15,7 @@
         tools:context=".ui.MainActivity">
 
         <include layout="@layout/toolbar"
-            android:id="@+id/toolbar"
+            android:id="@+id/toolbar_layout"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,7 +27,7 @@
             app:defaultNavHost="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintTop_toBottomOf="@id/toolbar_layout"
             app:navGraph="@navigation/nav_bar_navigation" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
