@@ -299,9 +299,16 @@ class EditExpenseActivity : AppCompatActivity() {
     private fun readCents(): Long {
         val cents = binding.amountInputEditText.text
             .toString()
+            .trim()
             .split(DECIMAL_SEPARATORS_REGEX).run {
                 val beforeComma = getOrNull(0)?.toLongOrNull() ?: 0
-                val afterComma = getOrNull(1)?.toLongOrNull() ?: 0
+                val afterComma = getOrNull(1)?.run {
+                    val num = toLongOrNull() ?: 0
+                    if (length == 1)
+                        num * 10 // if only one digit after comma, interpret as 10ths (ex. 0.1 = 10 cents)
+                    else
+                        num
+                } ?: 0
                 val beforeCommaSign = if (beforeComma >= 0) 1 else -1
 
                 beforeComma * 100 + beforeCommaSign * afterComma
