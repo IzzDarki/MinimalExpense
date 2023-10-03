@@ -10,7 +10,7 @@ android {
         applicationId "com.izzdarki.minimalexpense"
         minSdk 23
         targetSdk 34
-        versionCode 5
+        versionCode 5 // TODO version code, keep up to date (should increase with each release)
         versionName "1.1.0-alpha.0" // TODO version name, keep up to date
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
