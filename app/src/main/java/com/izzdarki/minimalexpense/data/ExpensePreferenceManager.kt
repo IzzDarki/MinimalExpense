@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import com.izzdarki.editlabelscomponent.EditLabelsComponent
 import com.izzdarki.minimalexpense.ui.home.HomeViewModel.SortingType
 import com.izzdarki.minimalexpense.util.openEncryptedPreferences
-import java.lang.StringBuilder
 import java.util.*
 
 class ExpensePreferenceManager(context: Context) {
@@ -20,6 +19,7 @@ class ExpensePreferenceManager(context: Context) {
         name = preferences!!.getString(NAME.format(id), null)!!,
         cents = preferences!!.getLong(CENTS.format(id), -1),
         labels = readExpenseLabels(id),
+        notes = preferences!!.getString(NOTES.format(id), null),
         created = Date(preferences!!.getLong(CREATED.format(id), 0)),
         altered = Date(preferences!!.getLong(ALTERED.format(id), 0)),
     )
@@ -30,6 +30,7 @@ class ExpensePreferenceManager(context: Context) {
             .putString(NAME.format(id), expense.name)
             .putLong(CENTS.format(id), expense.cents)
             .putString(LABELS.format(id), expense.labels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR))
+            .putString(NOTES.format(id), expense.notes)
             .putLong(CREATED.format(id), expense.created.time)
             .putLong(ALTERED.format(id), expense.altered.time)
             .apply()
@@ -41,6 +42,7 @@ class ExpensePreferenceManager(context: Context) {
             .remove(NAME.format(id))
             .remove(CENTS.format(id))
             .remove(LABELS.format(id))
+            .remove(NOTES.format(id))
             .remove(CREATED.format(id))
             .remove(ALTERED.format(id))
             .apply()
@@ -105,11 +107,15 @@ class ExpensePreferenceManager(context: Context) {
     }
 
     fun readLabelFilter() = LabelFilter(
-        labels = preferences!!.getString(FILTER_LABELS, "")!!
+        includedLabels = preferences!!.getString(FILTER_INCLUDED_LABELS, "")!!
             .split(EditLabelsComponent.DEFAULT_SEPARATOR)
             .filter { it.isNotEmpty() }
             .toMutableSet(),
-        exclusive = preferences!!.getBoolean(FILTER_LABELS_EXCLUSIVE, false),
+        excludedLabels = preferences!!.getString(FILTER_EXCLUDED_LABELS, "")!!
+            .split(EditLabelsComponent.DEFAULT_SEPARATOR)
+            .filter { it.isNotEmpty() }
+            .toMutableSet(),
+        isIntersection = preferences!!.getBoolean(FILTER_LABELS_INTERSECTION, true),
         enabled = preferences!!.getBoolean(FILTER_LABELS_ENABLED, false)
     )
 
@@ -121,11 +127,14 @@ class ExpensePreferenceManager(context: Context) {
 
     fun writeLabelFilter(labelFilter: LabelFilter) {
         preferences!!.edit().putString(
-            FILTER_LABELS,
-            labelFilter.labels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR)
+            FILTER_INCLUDED_LABELS,
+            labelFilter.includedLabels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR)
+        ).putString(
+            FILTER_EXCLUDED_LABELS,
+            labelFilter.excludedLabels.joinToString(EditLabelsComponent.DEFAULT_SEPARATOR)
         ).putBoolean(
-            FILTER_LABELS_EXCLUSIVE,
-            labelFilter.exclusive
+            FILTER_LABELS_INTERSECTION,
+            labelFilter.isIntersection
         ).putBoolean(
             FILTER_LABELS_ENABLED,
             labelFilter.enabled
@@ -190,13 +199,15 @@ class ExpensePreferenceManager(context: Context) {
         private const val NAME: String = "%s.name" // String
         private const val CENTS: String = "%s.cents" // Long
         private const val LABELS: String = "%s.labels" // String (List)
+        private const val NOTES: String = "%s.notes" // String
         private const val CREATED: String = "%s.created" // Long (Date)
         private const val ALTERED: String = "%s.altered" // Long (Date)
         private const val ALL_EXPENSES: String = "all_expenses" // String (List)
         private const val SORTING_TYPE: String = "sorting_type" // Int (SortingType)
         private const val SORTING_REVERSED: String = "sorting_reversed" // Boolean
-        private const val FILTER_LABELS: String = "filter_labels" // String (List)
-        private const val FILTER_LABELS_EXCLUSIVE: String = "filter_labels_exclusive" // Boolean
+        private const val FILTER_INCLUDED_LABELS: String = "filter_labels" // String (List)
+        private const val FILTER_EXCLUDED_LABELS: String = "filter_excluded_labels" // String (List)
+        private const val FILTER_LABELS_INTERSECTION: String = "filter_labels_exclusive" // Boolean
         private const val FILTER_LABELS_ENABLED: String = "filter_labels_enabled" // Boolean
         private const val FILTER_AMOUNT_EXPENSES: String = "filter_amount_expenses" // Boolean
         private const val FILTER_AMOUNT_INCOME: String = "filter_amount_income" // Boolean

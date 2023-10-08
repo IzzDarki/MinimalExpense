@@ -12,6 +12,25 @@ import java.util.*
 
 class HomeViewModel : ViewModel() {
 
+    private val _expenses = MutableLiveData<MutableList<Expense>>().apply { value = mutableListOf() }
+    private val _sortingType = MutableLiveData<SortingType>()
+    private val _sortingReversed = MutableLiveData<Boolean>()
+    private val _labelFilter = MutableLiveData<LabelFilter>()
+    private val _amountFilter = MutableLiveData<AmountFilter>()
+    private val _dateFilter = MutableLiveData<DateFilter>()
+    private var _isFilterCardOpened = MutableLiveData<Boolean>()
+    private var _searchTerm: MutableLiveData<String> = MutableLiveData("")
+
+    val expenses: LiveData<MutableList<Expense>> = _expenses
+    val sumCents: Long get() = expenses.value!!.sumOf { it.cents }
+    val sortingType: LiveData<SortingType> = _sortingType
+    val sortingReversed: LiveData<Boolean> = _sortingReversed
+    val labelFilter: LiveData<LabelFilter> = _labelFilter
+    val amountFilter: LiveData<AmountFilter> = _amountFilter
+    val dateFilter: LiveData<DateFilter> = _dateFilter
+    val isFilterCardOpened: LiveData<Boolean> = _isFilterCardOpened
+    var onExpensesChanged: (removeIndex: Int?) -> Unit = { }
+
     fun init(context: Context) {
         val timer = Timer("Init HomeViewModel")
 
@@ -76,6 +95,7 @@ class HomeViewModel : ViewModel() {
         val amountFilter = _amountFilter.value!!
         val dateFilter = _dateFilter.value!!
         val expenses = _expenses.value!!
+        val searchTerm = _searchTerm.value!!
 
         if (labelFilterChanged)
             preferences.writeLabelFilter(labelFilter)
@@ -98,25 +118,32 @@ class HomeViewModel : ViewModel() {
         if (amountFilter.enabled) {
             expenses.retainAll { amountFilter.isOkay(it.cents) }
         }
-        if (labelFilter.enabled && labelFilter.labels.isNotEmpty()) {
-            when (labelFilter.exclusive) {
+        if (labelFilter.enabled && (labelFilter.includedLabels.isNotEmpty() || labelFilter.excludedLabels.isNotEmpty())) {
+            when (labelFilter.isIntersection) {
                 false -> {
                     expenses.retainAll {
-                        it.labels.containsAny(labelFilter.labels)
+                        it.labels.containsAny(labelFilter.includedLabels) || !it.labels.containsAll(labelFilter.excludedLabels)
                     }
                 }
                 true -> {
-                    expenses.removeAll {
-                        !it.labels.containsAll(labelFilter.labels)
+                    expenses.retainAll {
+                        it.labels.containsAll(labelFilter.includedLabels) && !it.labels.containsAny(labelFilter.excludedLabels)
                     }
                 }
             }
         }
+        if (searchTerm != "") {
+            expenses.retainAll {
+                it.name.contains(searchTerm, ignoreCase = true) || it.labels.any { label -> label.contains(searchTerm, ignoreCase = true) }
+            }
+        }
+
         if (notifyChanges)
             onExpensesChanged.invoke(null)
 
         timer.end()
     }
+
 
     /**
      * Removes the entire expense from preferences and from [expenses]
@@ -138,18 +165,24 @@ class HomeViewModel : ViewModel() {
         filterExpenses(context, labelFilterChanged = true)
     }
 
-    fun setLabelFilterExclusive(context: Context, exclusive: Boolean) {
-        _labelFilter.value!!.exclusive = exclusive
+    fun setLabelFilterIntersection(context: Context, exclusive: Boolean) {
+        _labelFilter.value!!.isIntersection = exclusive
         filterExpenses(context,
             labelFilterChanged = true
         )
     }
 
-    fun setLabelFilter(context: Context, labels: Set<String>) {
-        _labelFilter.value!!.labels = labels.toMutableSet()
+    fun setLabelFilter(context: Context, includedLabels: Set<String>, exludedLabels: Set<String>) {
+        _labelFilter.value!!.includedLabels = includedLabels.toMutableSet()
+        _labelFilter.value!!.excludedLabels = exludedLabels.toMutableSet()
         filterExpenses(context,
             labelFilterChanged = true
         )
+    }
+
+    fun setSearchTerm(context: Context, searchTerm: String) {
+        _searchTerm.value = searchTerm
+        filterExpenses(context)
     }
 
 
@@ -190,21 +223,4 @@ class HomeViewModel : ViewModel() {
         ByName
     }
 
-    private val _expenses = MutableLiveData<MutableList<Expense>>().apply { value = mutableListOf() }
-    private val _sortingType = MutableLiveData<SortingType>()
-    private val _sortingReversed = MutableLiveData<Boolean>()
-    private val _labelFilter = MutableLiveData<LabelFilter>()
-    private val _amountFilter = MutableLiveData<AmountFilter>()
-    private val _dateFilter = MutableLiveData<DateFilter>()
-    private var _isFilterCardOpened = MutableLiveData<Boolean>()
-
-    val expenses: LiveData<MutableList<Expense>> = _expenses
-    val sumCents: Long get() = expenses.value!!.sumOf { it.cents }
-    val sortingType: LiveData<SortingType> = _sortingType
-    val sortingReversed: LiveData<Boolean> = _sortingReversed
-    val labelFilter: LiveData<LabelFilter> = _labelFilter
-    val amountFilter: LiveData<AmountFilter> = _amountFilter
-    val dateFilter: LiveData<DateFilter> = _dateFilter
-    val isFilterCardOpened: LiveData<Boolean> = _isFilterCardOpened
-    var onExpensesChanged: (removeIndex: Int?) -> Unit = { }
 }

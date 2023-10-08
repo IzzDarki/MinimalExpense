@@ -8,6 +8,7 @@ data class Expense(
     var name: String,
     var cents: Long,
     var labels: MutableSet<String> = mutableSetOf(),
+    var notes: String? = null,
     var created: Date = dateNow,
     var altered: Date = dateNow, // this is not visible to the user, but gets saved to preferences anyway (maybe needed in the future)
 )

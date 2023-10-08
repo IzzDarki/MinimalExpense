@@ -19,9 +19,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:contentPadding="8dp"
 
-        app:strokeWidth="1dp"
-        app:strokeColor="@color/material_on_background_emphasis_medium"
-        app:cardCornerRadius="10dp">
+        app:strokeWidth="0dp"
+        app:cardCornerRadius="10dp"
+        app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -98,20 +98,23 @@
                 tools:viewBindingIgnore="true">
 
                 <com.google.android.material.chip.Chip
-                    android:id="@+id/inclusive_chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-
-                    android:text="@string/inclusive"
-                    style="@style/Widget.MaterialComponents.Chip.Choice" />
-
-                <com.google.android.material.chip.Chip
                     android:id="@+id/exclusive_chip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
-                    android:text="@string/exclusive"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+                    android:text="@string/intersection"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:checkable="true"
+                    tools:checked="true"/>
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/inclusive_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+
+                    android:text="@string/union"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:checkable="true"/>
 
             </com.google.android.material.chip.ChipGroup>
 
@@ -121,20 +124,21 @@
                 android:layout_height="wrap_content"
 
                 app:layout_constraintTop_toBottomOf="@id/labels_inclusive_exclusive_chip_group"
-                app:layout_constraintStart_toStartOf="@id/labels_inclusive_exclusive_chip_group"
+                app:layout_constraintStart_toStartOf="@id/labels_headline"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:chipSpacingVertical="0dp"
 
+                app:singleSelection="false"
                 tools:viewBindingIgnore="true">
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/labels_add_chip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    app:chipBackgroundColor="@color/primary_color"
-                    style="@style/Widget.MaterialComponents.Chip.Action"
+                    style="@style/Widget.Material3.Chip.Assist"
                     android:text="@string/label"
-
-                    app:chipIcon="@drawable/ic_plus_24dp" />
+                    app:chipIcon="@drawable/ic_plus_24dp"
+                    app:chipIconVisible="true"/>
 
             </com.google.android.material.chip.ChipGroup>
 
@@ -192,7 +196,9 @@
                     android:layout_height="wrap_content"
 
                     android:text="@string/expense"
-                    style="@style/Widget.MaterialComponents.Chip.Choice" />
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:checkable="true"
+                    tools:checked="true"/>
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/type_income_chip"
@@ -200,7 +206,8 @@
                     android:layout_height="wrap_content"
 
                     android:text="@string/income"
-                    style="@style/Widget.MaterialComponents.Chip.Choice"/>
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:checkable="true"/>
 
             </com.google.android.material.chip.ChipGroup>
 
@@ -256,7 +263,7 @@
                 app:layout_constraintStart_toEndOf="@+id/date_from_text_view"
                 app:layout_constraintBaseline_toBaselineOf="@id/date_from_text_view"
 
-                style="@style/Widget.MaterialComponents.Chip.Action"
+                style="@style/Widget.Material3.Chip.Assist"
 
                 app:chipIcon="@drawable/ic_calendar_created_24dp"
 
@@ -282,7 +289,7 @@
                 app:layout_constraintStart_toEndOf="@+id/date_from_text_view"
                 app:layout_constraintBaseline_toBaselineOf="@id/date_to_text_view"
 
-                style="@style/Widget.MaterialComponents.Chip.Action"
+                style="@style/Widget.Material3.Chip.Assist"
 
                 app:chipIcon="@drawable/ic_calendar_created_24dp"
 

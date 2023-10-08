@@ -32,8 +32,8 @@
     <string name="filter">Filter</string>
     <string name="labels">Labels</string>
     <string name="date">Datum</string>
-    <string name="inclusive">Inklusiv</string>
-    <string name="exclusive">Exklusiv</string>
+    <string name="union">Vereinigung</string>
+    <string name="intersection">Schnitt</string>
     <string name="from">Von</string>
     <string name="until">Bis</string>
     <string name="enter_date">Datum eingeben</string>
@@ -57,6 +57,7 @@
     <string name="december">Dezember</string>
     <string name="expense">Ausgabe</string>
     <string name="income">Einnahme</string>
+    <string name="search">Suchen</string>
     <string name="nav_header_content_description">Navigationsleiste</string>
     <string name="info">Info</string>
     <string name="author_title">Autor</string>
@@ -70,4 +71,6 @@
     <string name="currency">Währung</string>
     <string name="currency_summary">Währungssymbol eingeben</string>
     <string name="currency_default">€</string>
+    <string name="search_for_expense_or_label">Suche nach Ausgabe oder Label</string>
+    <string name="notes">Notizen</string>
 </resources>

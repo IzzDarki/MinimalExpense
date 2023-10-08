@@ -10,8 +10,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.widget.doAfterTextChanged
-import androidx.core.widget.doBeforeTextChanged
-import androidx.core.widget.doOnTextChanged
 import com.izzdarki.minimalexpense.R
 import com.izzdarki.minimalexpense.data.ExpensePreferenceManager
 import com.izzdarki.minimalexpense.data.Expense
@@ -20,7 +18,6 @@ import com.izzdarki.editlabelscomponent.EditLabelsComponent
 import com.izzdarki.minimalexpense.data.SettingsManager
 import com.izzdarki.minimalexpense.util.*
 import java.util.*
-import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 class EditExpenseActivity : AppCompatActivity() {
@@ -28,6 +25,8 @@ class EditExpenseActivity : AppCompatActivity() {
     companion object {
         const val EXTRA_CREATE_NEW: String = "extra_create_new" // Boolean
         const val EXTRA_ID: String = "extra_id" // String (UUID)
+        val DECIMAL_SEPARATORS: List<Char> = listOf('.', ',')
+        val DECIMAL_SEPARATORS_REGEX = Regex("[.,]")
 
         fun startForEdit(context: Context, id: UUID) {
             val intent = Intent(context, EditExpenseActivity::class.java)
@@ -42,6 +41,15 @@ class EditExpenseActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var binding: ActivityEditExpenseBinding
+    private val expensePreferences by lazy { ExpensePreferenceManager(this) }
+    private lateinit var expense: Expense
+    private lateinit var editLabelsComponent: EditLabelsComponent
+
+    private val hasBeenModified get() = expense != expensePreferences.readExpense(expense.id)
+    private val isCreateNewIntent get() = intent.getBooleanExtra(EXTRA_CREATE_NEW, false)
+    private val isError get() = binding.nameInput.error != null || binding.amountInput.error != null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -52,15 +60,15 @@ class EditExpenseActivity : AppCompatActivity() {
             Expense(
                 id = UUID.randomUUID(),
                 name = getString(R.string.expense_default_name),
-                cents = 0,
+                cents = 0
             )
         } else {
             expensePreferences.readExpense(intent.getSerializableExtra(EXTRA_ID) as UUID)
         }
 
         // Toolbar
-        binding.toolbar.title = expense.name
-        setSupportActionBar(binding.toolbar)
+        binding.toolbarLayout.toolbar.title = expense.name
+        setSupportActionBar(binding.toolbarLayout.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Name input
@@ -92,13 +100,7 @@ class EditExpenseActivity : AppCompatActivity() {
         val amountText = formatCurrencyWithoutSymbol(expense.cents.absoluteValue)
         binding.amountInputEditText.setText(amountText)
         binding.amountInputEditText.doAfterTextChanged {
-            val amountString = binding.amountInputEditText.text.toString()
-            val amount = amountString.toDoubleOrNull()
-            binding.amountInput.error = when {
-                amount == null -> getString(R.string.this_is_not_a_valid_amount)
-                getDecimalPlaces(amountString) > 2 -> getString(R.string.only_two_decimal_places_are_allowed)
-                else -> null
-            }
+            binding.amountInput.error = checkCentsErrorMessage()
         }
         // Format number when focus lost
         binding.amountInputEditText.onFocusChangeListener = View.OnFocusChangeListener { _, hasFocus ->
@@ -138,9 +140,12 @@ class EditExpenseActivity : AppCompatActivity() {
         )
         editLabelsComponent.displayLabels(expense.labels)
 
+        // Notes input
+        binding.notesInputEditText.setText(expense.notes)
+
         // Creation date
         updateCreationDateText()
-        binding.createdTextView.setOnLongClickListener {
+        binding.createdTextView.setOnClickListener {
             selectDateDialog(
                 context = this,
                 initialDate = expense.created
@@ -148,7 +153,6 @@ class EditExpenseActivity : AppCompatActivity() {
                 expense.created = date
                 updateCreationDateText()
             }
-            true // Long click always consumed
         }
     }
 
@@ -159,6 +163,7 @@ class EditExpenseActivity : AppCompatActivity() {
         expense.name = readName()
         expense.cents = readCents()
         expense.labels = readLabels()
+        expense.notes = readNotes()
 
         if (isCreateNewIntent || hasBeenModified) {
             val title = getString(
@@ -197,6 +202,7 @@ class EditExpenseActivity : AppCompatActivity() {
             expense.name = readName()
             expense.cents = readCents()
             expense.labels = readLabels()
+            expense.notes = readNotes()
             expensePreferences.writeExpense(expense)
             finish()
         }
@@ -264,25 +270,48 @@ class EditExpenseActivity : AppCompatActivity() {
             super.dispatchTouchEvent(ev)
     }
 
-    private lateinit var binding: ActivityEditExpenseBinding
-    private val expensePreferences by lazy { ExpensePreferenceManager(this) }
-    private lateinit var expense: Expense
-    private lateinit var editLabelsComponent: EditLabelsComponent
-
-    private val hasBeenModified get() = expense != expensePreferences.readExpense(expense.id)
-    private val isCreateNewIntent get() = intent.getBooleanExtra(EXTRA_CREATE_NEW, false)
-    private val isError get() = binding.nameInput.error != null || binding.amountInput.error != null
-
     private fun readName(): String = binding.nameInputEditText.text.toString().trim()
+
+    private fun readNotes(): String? = binding.notesInputEditText.text?.toString()?.trim()
+
+    private fun checkCentsErrorMessage(): String? {
+        return binding.amountInputEditText.text
+            .toString()
+            .split(DECIMAL_SEPARATORS_REGEX).run {
+                val beforeComma = getOrNull(0) ?: "" // never null because of split
+                val afterComma = getOrNull(1)
+
+                if (beforeComma == "")
+                    getString(R.string.this_is_not_a_valid_amount) // empty before comma
+                else if (beforeComma.toLongOrNull() == null)
+                    getString(R.string.this_is_not_a_valid_amount) // before comma not a number
+                else if (afterComma != null && (afterComma.toLongOrNull() == null || afterComma.toLong() < 0))
+                    getString(R.string.this_is_not_a_valid_amount) // after comma not a number
+                else if (afterComma != null && getDecimalPlaces(afterComma, DECIMAL_SEPARATORS) > 2)
+                    getString(R.string.only_two_decimal_places_are_allowed) // more than two decimal places
+                else if (getOrNull(2) != null)
+                    getString(R.string.this_is_not_a_valid_amount) // multiple commas
+                else
+                    null
+            }
+    }
 
     private fun readCents(): Long {
         val cents = binding.amountInputEditText.text
             .toString()
-            .split('.').run {
+            .trim()
+            .split(DECIMAL_SEPARATORS_REGEX).run {
                 val beforeComma = getOrNull(0)?.toLongOrNull() ?: 0
-                val afterComma = getOrNull(1)?.toLongOrNull() ?: 0
+                val afterComma = getOrNull(1)?.run {
+                    val num = toLongOrNull() ?: 0
+                    if (length == 1)
+                        num * 10 // if only one digit after comma, interpret as 10ths (ex. 0.1 = 10 cents)
+                    else
+                        num
+                } ?: 0
+                val beforeCommaSign = if (beforeComma >= 0) 1 else -1
 
-                beforeComma * 100 + afterComma
+                beforeComma * 100 + beforeCommaSign * afterComma
             }
 
         return if (binding.incomeChip.isChecked)

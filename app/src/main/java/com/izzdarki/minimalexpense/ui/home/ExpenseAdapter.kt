@@ -14,7 +14,6 @@ import com.izzdarki.minimalexpense.data.Expense
 import com.izzdarki.minimalexpense.data.SettingsManager
 import com.izzdarki.minimalexpense.databinding.AdapterExpenseBinding
 import com.izzdarki.minimalexpense.util.*
-import kotlin.math.abs
 import kotlin.math.absoluteValue
 
 class ExpenseAdapter(
@@ -83,7 +82,7 @@ class ExpenseAdapter(
 
         if (selectionTracker.isSelected(expenses[pos].id.toString())) {
             holder.root.setBackgroundColor(
-                ContextCompat.getColor(holder.context, R.color.primary_color).withAlpha(0x40)
+                ContextCompat.getColor(holder.context, R.color.md_theme_secondary).withAlpha(0x40)
             )
         }
         else {

@@ -4,7 +4,9 @@ import android.content.DialogInterface
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.SearchView
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.doOnPreDraw
 import androidx.fragment.app.Fragment
@@ -12,13 +14,14 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.selection.*
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.izzdarki.editlabelscomponent.EditLabelsComponent
+import com.izzdarki.editlabelscomponent.generateStrikethroughChip
+import com.izzdarki.editlabelscomponent.strikethroughOnCheckedChanged
 import com.izzdarki.minimalexpense.R
 import com.izzdarki.minimalexpense.data.ExpensePreferenceManager
 import com.izzdarki.minimalexpense.data.SettingsManager
 import com.izzdarki.minimalexpense.databinding.FragmentHomeBinding
 import com.izzdarki.minimalexpense.ui.edit.EditExpenseActivity
 import com.izzdarki.minimalexpense.util.*
-import com.izzdarki.minimalexpense.debug.Timer
 import java.util.*
 import kotlin.math.absoluteValue
 
@@ -30,18 +33,30 @@ class HomeFragment : Fragment() {
         //setRetainInstance(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val timer = Timer("Home Fragment on create view")
-
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
-        val root: View = binding.root
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         viewModel = ViewModelProvider(this)[HomeViewModel::class.java]
         viewModel.init(requireContext())
 
+        // back pressed callback
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            clearSelectionOnBackPressedCallback
+        )
+
         // filter card
         binding.filterCollapseButton.setOnClickListener {
-           setFilterCardOpened(false)
+            setFilterCardOpened(false)
         }
         setFilterCardOpened(
             viewModel.isFilterCardOpened.value!!
@@ -71,9 +86,6 @@ class HomeFragment : Fragment() {
         }
 
         calledAfterOnCreateView = true
-
-        timer.end()
-        return root
     }
 
     private fun onCreateLabelFilter() {
@@ -82,28 +94,37 @@ class HomeFragment : Fragment() {
             viewModel.toggleLabelFilterEnabled(requireContext())
             updateLabelFilterEnabled()
         }
-        binding.inclusiveChip.isChecked = !viewModel.labelFilter.value!!.exclusive
-        binding.exclusiveChip.isChecked = viewModel.labelFilter.value!!.exclusive
+        binding.inclusiveChip.isChecked = !viewModel.labelFilter.value!!.isIntersection
+        binding.exclusiveChip.isChecked = viewModel.labelFilter.value!!.isIntersection
         binding.inclusiveChip.setOnClickListener {
-            viewModel.setLabelFilterExclusive(requireContext(), false)
+            viewModel.setLabelFilterIntersection(requireContext(), false)
             binding.inclusiveChip.isChecked = true
         }
         binding.exclusiveChip.setOnClickListener {
-            viewModel.setLabelFilterExclusive(requireContext(), true)
+            viewModel.setLabelFilterIntersection(requireContext(), true)
             binding.exclusiveChip.isChecked = true
         }
+        val checkedColor = requireContext().getColor(R.color.income_color).withAlpha(70)
+        val uncheckedColor = requireContext().getColor(R.color.expense_color).withAlpha(70)
         filterLabelsComponent = EditLabelsComponent(
             binding.labelsContentChipGroup,
             binding.labelsAddChip,
             allLabels = ExpensePreferenceManager(requireContext()).getSortedLabelsDropdown(),
             allowNewLabels = false,
-            onLabelChanged = {
-                viewModel.setLabelFilter(requireContext(), filterLabelsComponent.currentLabels)
+            checkableFunctionality = true,
+            generateChip = { context, label, isChecked -> generateStrikethroughChip(checkedColor, uncheckedColor, context, label, isChecked) }, // strike through unchecked labels
+            onCheckedChanged = { label, isChecked, chip ->
+                strikethroughOnCheckedChanged(checkedColor, uncheckedColor, label, isChecked, chip) // strike through unchecked labels
+                updateLabelFilterInViewModel()
             }
         )
+        filterLabelsComponent.setOnLabelChanged { _, _, _ ->
+            updateLabelFilterInViewModel()
+        }
         // Load initial labels
-        filterLabelsComponent.displayLabels(
-            viewModel.labelFilter.value!!.labels
+        filterLabelsComponent.displayLabelsWithCheckedStatus(
+            viewModel.labelFilter.value!!.includedLabels.map { label -> Pair(label, true) }
+                .union(viewModel.labelFilter.value!!.excludedLabels.map { label -> Pair(label, false) })
         )
     }
 
@@ -183,15 +204,19 @@ class HomeFragment : Fragment() {
         ).build()
         selectionTracker.addObserver(object : SelectionTracker.SelectionObserver<String>() {
             override fun onSelectionChanged() {
+                clearSelectionOnBackPressedCallback.isEnabled = selectionTracker.hasSelection()
                 activity?.invalidateOptionsMenu()
             }
         })
         adapter.selectionTracker = selectionTracker
     }
 
-    override fun onResume() {
-        val timer = Timer("Home Fragment on resume")
+    override fun onPause() {
+        super.onPause()
+        clearSelectionOnBackPressedCallback.isEnabled = false
+    }
 
+    override fun onResume() {
         if (!calledAfterOnCreateView) {
             viewModel.init(requireContext()) // Only do this when onCreateView was not called before
             viewModel.onExpensesChanged.invoke(null)
@@ -199,9 +224,9 @@ class HomeFragment : Fragment() {
         else
             calledAfterOnCreateView = false
 
-        super.onResume()
+        clearSelectionOnBackPressedCallback.isEnabled = adapter?.selectionTracker?.hasSelection() ?: false
 
-        timer.end()
+        super.onResume()
     }
 
     override fun onDestroyView() {
@@ -234,6 +259,21 @@ class HomeFragment : Fragment() {
             HomeViewModel.SortingType.ByAmount -> menu.findItem(R.id.home_action_bar_sort_by_amount).isChecked = true
         }
         menu.findItem(R.id.home_action_bar_sort_reverse).isChecked = viewModel.sortingReversed.value!!
+
+        // Search
+        val searchView = menu.findItem(R.id.home_action_bar_search).actionView as SearchView
+        searchView.queryHint = getString(R.string.search_for_expense_or_label)
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                viewModel.setSearchTerm(requireContext(), searchTerm = query ?: "")
+                return true  // Query has been handled
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                return this.onQueryTextSubmit(newText)
+            }
+
+        })
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -342,6 +382,10 @@ class HomeFragment : Fragment() {
             binding.exclusiveChip.visibility = View.INVISIBLE
             binding.labelsContentChipGroup.visibility = View.GONE
         }
+    }
+
+    private fun updateLabelFilterInViewModel() {
+        viewModel.setLabelFilter(requireContext(), filterLabelsComponent.currentCheckedLabels, filterLabelsComponent.currentUncheckedLabels)
     }
 
 
@@ -487,5 +531,10 @@ class HomeFragment : Fragment() {
 
     private val adapter get() = binding.recyclerView.adapter as? ExpenseAdapter
     private val isFilterEdit get() = binding.filterCard.visibility == View.VISIBLE
+    private val clearSelectionOnBackPressedCallback = object : OnBackPressedCallback(enabled = true) {
+        override fun handleOnBackPressed() {
+            adapter?.selectionTracker?.clearSelection()
+        }
+    }
 
 }

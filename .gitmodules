@@ -1,0 +1,6 @@
+[submodule "PreferenceUtility"]
+	path = PreferenceUtility
+	url = https://github.com/IzzDarki/AndroidPreferenceUtility
+[submodule "EditLabelsComponent"]
+	path = EditLabelsComponent
+	url = https://github.com/IzzDarki/AndroidPreferenceUtility

@@ -1,11 +1,11 @@
 package com.izzdarki.minimalexpense.data
 
 import java.util.*
-import kotlin.math.exp
 
 class LabelFilter(
-    var labels: MutableSet<String>,
-    var exclusive: Boolean,
+    var includedLabels: MutableSet<String>,
+    var excludedLabels: MutableSet<String>,
+    var isIntersection: Boolean,
     var enabled: Boolean
 )
 
